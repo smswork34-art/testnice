@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NICE ENDURO | Техподдержка · Тикеты</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root {
+            --bg-primary: #060608; --bg-secondary: #0E0E12; --bg-card: #14141A;
+            --bg-hover: #1A1A22; --bg-chat: #0C0C10;
+            --accent: #E8C441; --accent-light: #F5DC70; --accent-glow: rgba(232, 196, 65, 0.4);
+            --text-primary: #F0F0F5; --text-secondary: #909099; --text-muted: #555560;
+            --border-color: #1E1E28; --green: #4CAF50; --red: #EF5350;
+            --font-heading: 'Bebas Neue', 'Arial Narrow', 'Impact', sans-serif;
+            --font-body: 'Inter', sans-serif;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: var(--bg-primary); color: var(--text-primary); font-family: var(--font-body); height: 100vh; overflow: hidden; -webkit-font-smoothing: antialiased; }
+        body::-webkit-scrollbar { width: 4px; }
+        body::-webkit-scrollbar-track { background: transparent; }
+        body::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 2px; }
+
+        .app { display: flex; height: 100vh; }
+        .sidebar { width: 340px; min-width: 340px; background: var(--bg-card); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; z-index: 10; }
+        .sidebar-header { padding: 20px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; }
+        .sidebar-header h2 { font-family: var(--font-heading); font-size: 1.4rem; letter-spacing: 3px; color: #fff; }
+        .sidebar-header h2 span { color: var(--accent); }
+        .sidebar-header .nav-links { display: flex; gap: 8px; }
+        .sidebar-header .nav-links a { color: var(--text-muted); text-decoration: none; font-size: 0.75rem; transition: color 0.2s; padding: 4px 8px; border: 1px solid transparent; }
+        .sidebar-header .nav-links a:hover { color: var(--accent); border-color: var(--border-color); }
+        .sidebar-filters { padding: 12px 16px; border-bottom: 1px solid var(--border-color); display: flex; gap: 8px; }
+        .sidebar-filters select { flex: 1; padding: 10px 12px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff; font-family: var(--font-body); font-size: 0.8rem; cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%23909099' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; }
+        .tickets-list { flex: 1; overflow-y: auto; }
+        .ticket-item { padding: 14px 18px; border-bottom: 1px solid rgba(255,255,255,0.03); cursor: pointer; transition: background 0.2s; display: flex; gap: 12px; }
+        .ticket-item:hover { background: var(--bg-hover); }
+        .ticket-item.active { background: rgba(232,196,65,0.04); border-left: 3px solid var(--accent); }
+        .ticket-avatar { width: 38px; height: 38px; border-radius: 50%; background: var(--bg-hover); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem; color: var(--accent); flex-shrink: 0; }
+        .ticket-info { flex: 1; min-width: 0; }
+        .ticket-info .ticket-name { font-weight: 600; font-size: 0.88rem; color: #fff; margin-bottom: 2px; }
+        .ticket-info .ticket-preview { font-size: 0.78rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .ticket-meta { text-align: right; flex-shrink: 0; }
+        .ticket-meta .ticket-time { font-size: 0.7rem; color: var(--text-muted); margin-bottom: 4px; }
+        .ticket-badge { font-size: 0.6rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; padding: 2px 8px; display: inline-block; }
+        .ticket-badge.open { background: rgba(76,175,80,0.15); color: var(--green); }
+        .ticket-badge.closed { background: rgba(255,255,255,0.05); color: var(--text-muted); }
+
+        .chat-area { flex: 1; display: flex; flex-direction: column; background: var(--bg-chat); }
+        .chat-empty { flex: 1; display: flex; align-items: center; justify-content: center; color: var(--text-muted); flex-direction: column; gap: 12px; }
+        .chat-empty svg { width: 48px; height: 48px; opacity: 0.3; }
+        .chat-header { padding: 14px 20px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; background: var(--bg-card); }
+        .chat-user { display: flex; align-items: center; gap: 10px; }
+        .cu-avatar { width: 34px; height: 34px; border-radius: 50%; background: var(--bg-hover); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.8rem; color: var(--accent); }
+        .cu-name { font-weight: 600; font-size: 0.9rem; }
+        .cu-status { font-size: 0.7rem; color: var(--text-muted); }
+        .chat-actions { display: flex; gap: 8px; }
+        .chat-actions button { padding: 7px 14px; font-size: 0.7rem; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; border: 1px solid var(--border-color); background: transparent; color: var(--text-secondary); font-family: var(--font-body); transition: all 0.2s; }
+        .chat-actions button:hover { border-color: var(--accent); color: var(--accent); }
+        .chat-actions button.close-btn:hover { border-color: var(--red); color: var(--red); }
+        .chat-messages { flex: 1; overflow-y: auto; padding: 16px 20px; display: flex; flex-direction: column; gap: 10px; }
+        .message { display: flex; gap: 8px; max-width: 72%; animation: msgIn 0.25s ease; }
+        @keyframes msgIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+        .message.client { align-self: flex-start; }
+        .message.support { align-self: flex-end; flex-direction: row-reverse; }
+        .msg-avatar { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.65rem; flex-shrink: 0; }
+        .message.client .msg-avatar { background: var(--bg-hover); color: var(--accent); }
+        .message.support .msg-avatar { background: var(--accent); color: #000; }
+        .msg-bubble { padding: 8px 12px; font-size: 0.85rem; line-height: 1.5; }
+        .message.client .msg-bubble { background: var(--bg-card); color: #fff; }
+        .message.support .msg-bubble { background: rgba(232,196,65,0.12); color: #fff; border: 1px solid rgba(232,196,65,0.2); }
+        .msg-time { font-size: 0.6rem; color: var(--text-muted); margin-top: 3px; }
+        .chat-input-area { padding: 12px 20px; border-top: 1px solid var(--border-color); display: flex; gap: 8px; background: var(--bg-card); }
+        .chat-input-area input { flex: 1; padding: 10px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff; font-family: var(--font-body); font-size: 0.85rem; }
+        .chat-input-area input:focus { outline: none; border-color: var(--accent); }
+        .chat-input-area button { padding: 10px 18px; background: var(--accent); border: none; color: #000; font-family: var(--font-heading); font-size: 0.85rem; letter-spacing: 2px; cursor: pointer; font-weight: 700; transition: all 0.2s; }
+        .chat-input-area button:hover { background: var(--accent-light); }
+        .empty-tickets { flex: 1; display: flex; align-items: center; justify-content: center; color: var(--text-muted); font-size: 0.85rem; text-align: center; padding: 20px; }
+
+        @media (max-width: 768px) {
+            .sidebar { width: 100%; min-width: 100%; }
+            .app { flex-direction: column; }
+            .chat-area { display: none; }
+            .chat-area.mobile-open { display: flex; position: fixed; inset: 0; z-index: 50; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2>NICE<span>ENDURO</span></h2>
+                <div class="nav-links">
+                    <a href="admin.html">Заявки</a>
+                    <a href="index.html">Сайт</a>
+                </div>
+            </div>
+            <div class="sidebar-filters">
+                <select onchange="renderTickets()" id="ticketFilter">
+                    <option value="all">Все тикеты</option>
+                    <option value="open">Открытые</option>
+                    <option value="closed">Закрытые</option>
+                </select>
+            </div>
+            <div class="tickets-list" id="ticketsList"></div>
+        </aside>
+
+        <main class="chat-area" id="chatArea">
+            <div class="chat-empty" id="chatEmpty">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                <p>Выберите тикет слева</p>
+            </div>
+            <div id="chatContent" style="display:none;flex:1;flex-direction:column;">
+                <div class="chat-header">
+                    <div class="chat-user">
+                        <div class="cu-avatar" id="chatAvatar">К</div>
+                        <div><div class="cu-name" id="chatName">Клиент</div><div class="cu-status" id="chatStatus">Онлайн</div></div>
+                    </div>
+                    <div class="chat-actions">
+                        <button class="close-btn" onclick="closeTicket()">Закрыть тикет</button>
+                    </div>
+                </div>
+                <div class="chat-messages" id="chatMessages"></div>
+                <div class="chat-input-area">
+                    <input type="text" placeholder="Введите ответ..." id="chatInput" onkeypress="if(event.key==='Enter')sendMessage()">
+                    <button onclick="sendMessage()">Отпр</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://zrooftnesjmcaqjwojwi.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpyb29mdG5lc2ptY2FxandvandpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk2OTM5OTcsImV4cCI6MjA5NTI2OTk5N30.FNncL110petZQIy5COkYkArQtFq0yxszqI93lMri9YY';
+        const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        let activeTicketId = null;
+        let allTickets = [];
+        let subscription = null;
+
+        async function loadTickets() {
+            const { data } = await sb.from('tickets').select('*').order('created_at', { ascending: false });
+            allTickets = data || [];
+            renderTickets();
+            if (activeTicketId) openChat(activeTicketId);
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const text = input.value.trim();
+            if (!text || !activeTicketId) return;
+            await sb.from('messages').insert({ id: Date.now(), ticket_id: activeTicketId, sender: 'support', text });
+            input.value = '';
+        }
+
+        async function closeTicket() {
+            if (!activeTicketId) return;
+            await sb.from('tickets').update({ status: 'closed' }).eq('id', activeTicketId);
+            activeTicketId = null;
+            showEmptyChat();
+            loadTickets();
+        }
+
+        async function openChat(ticketId) {
+            activeTicketId = ticketId;
+            const ticket = allTickets.find(t => t.id === ticketId);
+            if (!ticket) return;
+
+            document.getElementById('chatEmpty').style.display = 'none';
+            document.getElementById('chatContent').style.display = 'flex';
+            document.getElementById('chatAvatar').textContent = ticket.name.charAt(0).toUpperCase();
+            document.getElementById('chatName').textContent = ticket.name;
+            document.getElementById('chatStatus').textContent = ticket.status === 'open' ? 'Онлайн' : 'Тикет закрыт';
+            document.getElementById('chatInput').disabled = ticket.status === 'closed';
+
+            const { data: messages } = await sb.from('messages').select('*').eq('ticket_id', ticketId).order('created_at', { ascending: true });
+            const msgs = document.getElementById('chatMessages');
+            msgs.innerHTML = (messages || []).map(m => `
+                <div class="message ${m.sender}">
+                    <div class="msg-avatar">${m.sender === 'client' ? ticket.name.charAt(0).toUpperCase() : 'TP'}</div>
+                    <div><div class="msg-bubble">${m.text}</div><div class="msg-time">${new Date(m.created_at).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}</div></div>
+                </div>
+            `).join('');
+            msgs.scrollTop = msgs.scrollHeight;
+
+            if (subscription) sb.removeChannel(subscription);
+            subscription = sb.channel('ticket-' + ticketId)
+                .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages', filter: `ticket_id=eq.${ticketId}` }, () => openChat(ticketId))
+                .subscribe();
+
+            renderTickets();
+            if (window.innerWidth <= 768) document.getElementById('chatArea').classList.add('mobile-open');
+        }
+
+        function showEmptyChat() {
+            document.getElementById('chatEmpty').style.display = 'flex';
+            document.getElementById('chatContent').style.display = 'none';
+            document.getElementById('chatArea').classList.remove('mobile-open');
+        }
+
+        function renderTickets() {
+            const filter = document.getElementById('ticketFilter').value;
+            let tickets = [...allTickets];
+            if (filter === 'open') tickets = tickets.filter(t => t.status === 'open');
+            if (filter === 'closed') tickets = tickets.filter(t => t.status === 'closed');
+
+            const container = document.getElementById('ticketsList');
+            if (tickets.length === 0) { container.innerHTML = '<div class="empty-tickets">Нет тикетов</div>'; return; }
+
+            container.innerHTML = tickets.map(t => `
+                <div class="ticket-item ${activeTicketId === t.id ? 'active' : ''}" onclick="openChat(${t.id})">
+                    <div class="ticket-avatar">${t.name.charAt(0).toUpperCase()}</div>
+                    <div class="ticket-info"><div class="ticket-name">${t.name}</div><div class="ticket-preview">${t.phone || 'Без телефона'}</div></div>
+                    <div class="ticket-meta">
+                        <div class="ticket-time">${new Date(t.created_at).toLocaleDateString('ru-RU')}</div>
+                        <span class="ticket-badge ${t.status}">${t.status === 'open' ? 'Открыт' : 'Закрыт'}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        loadTickets();
+        setInterval(loadTickets, 15000);
+    </script>
+</body>
+</html>

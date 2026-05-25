@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NICE ENDURO | Админ · Заявки</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root {
+            --bg-primary: #060608; --bg-secondary: #0E0E12; --bg-card: #14141A; --bg-hover: #1A1A22;
+            --accent: #E8C441; --accent-light: #F5DC70; --accent-glow: rgba(232, 196, 65, 0.4);
+            --text-primary: #F0F0F5; --text-secondary: #909099; --text-muted: #555560;
+            --border-color: #1E1E28; --border-light: #2A2A36;
+            --green: #4CAF50; --green-bg: rgba(76, 175, 80, 0.1); --green-border: rgba(76, 175, 80, 0.2);
+            --red: #EF5350; --red-bg: rgba(239, 83, 80, 0.1); --red-border: rgba(239, 83, 80, 0.2);
+            --blue: #42A5F5; --blue-bg: rgba(66, 165, 245, 0.1); --blue-border: rgba(66, 165, 245, 0.2);
+            --orange: #FF9800; --orange-bg: rgba(255, 152, 0, 0.1); --orange-border: rgba(255, 152, 0, 0.2);
+            --font-heading: 'Bebas Neue', 'Arial Narrow', 'Impact', sans-serif;
+            --font-body: 'Inter', sans-serif;
+            --sidebar-width: 260px;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: var(--bg-primary); color: var(--text-primary); font-family: var(--font-body); min-height: 100vh; -webkit-font-smoothing: antialiased; background-image: radial-gradient(ellipse at 50% 0%, rgba(232,196,65,0.03) 0%, transparent 60%); }
+        body::-webkit-scrollbar { width: 4px; }
+        body::-webkit-scrollbar-track { background: transparent; }
+        body::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 2px; }
+        body::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+        .sidebar { position: fixed; left: 0; top: 0; bottom: 0; width: var(--sidebar-width); background: var(--bg-card); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; z-index: 200; padding: 25px 0; transition: transform 0.3s ease; }
+        .sidebar-logo { padding: 0 25px 25px; border-bottom: 1px solid var(--border-color); margin-bottom: 25px; font-family: var(--font-heading); font-size: 1.8rem; letter-spacing: 4px; color: #fff; display: flex; align-items: center; gap: 10px; }
+        .sidebar-logo span { color: var(--accent); }
+        .sidebar-nav { flex: 1; padding: 0 15px; }
+        .sidebar-nav a { display: flex; align-items: center; gap: 12px; padding: 12px 15px; color: var(--text-secondary); text-decoration: none; font-size: 0.9rem; font-weight: 500; letter-spacing: 0.5px; transition: all 0.2s; margin-bottom: 2px; border: 1px solid transparent; }
+        .sidebar-nav a:hover { color: #fff; background: var(--bg-hover); border-color: var(--border-color); }
+        .sidebar-nav a.active { color: var(--accent); background: rgba(232,196,65,0.05); border-color: rgba(232,196,65,0.2); }
+        .sidebar-nav a svg { width: 18px; height: 18px; flex-shrink: 0; }
+        .sidebar-nav .badge { margin-left: auto; background: var(--accent); color: #000; font-size: 0.7rem; font-weight: 800; padding: 2px 8px; letter-spacing: 1px; min-width: 22px; text-align: center; }
+        .sidebar-footer { padding: 20px 25px; border-top: 1px solid var(--border-color); font-size: 0.75rem; color: var(--text-muted); }
+        .main-area { margin-left: var(--sidebar-width); min-height: 100vh; }
+        .top-bar { background: rgba(10,10,14,0.8); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); padding: 16px 30px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid var(--border-color); gap: 15px; }
+        .top-bar h2 { font-family: var(--font-heading); font-size: 1.6rem; letter-spacing: 3px; color: #fff; }
+        .top-bar-right { display: flex; align-items: center; gap: 15px; }
+        .top-bar-right .live-dot { width: 8px; height: 8px; background: var(--green); border-radius: 50%; animation: pulse-dot 2s infinite; }
+        @keyframes pulse-dot { 0%,100%{box-shadow:0 0 0 0 rgba(76,175,80,0.4)} 50%{box-shadow:0 0 0 10px rgba(76,175,80,0)} }
+        .top-bar-right .live-text { font-size: 0.8rem; color: var(--green); font-weight: 600; letter-spacing: 0.5px; }
+        .menu-toggle { display: none; background: none; border: 1px solid var(--border-color); color: #fff; padding: 8px 12px; cursor: pointer; }
+        .menu-toggle svg { width: 22px; height: 22px; }
+        .content-area { padding: 30px; }
+        .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 30px; }
+        .stat-card { background: var(--bg-card); border: 1px solid var(--border-color); padding: 22px 25px; display: flex; align-items: center; gap: 18px; transition: all 0.3s ease; position: relative; overflow: hidden; }
+        .stat-card::after { content: ''; position: absolute; top: 0; right: 0; width: 80px; height: 80px; border-radius: 50%; transform: translate(30px, -30px); opacity: 0.06; pointer-events: none; }
+        .stat-card.total::after { background: var(--accent); }
+        .stat-card.new::after { background: var(--green); }
+        .stat-card.process::after { background: var(--blue); }
+        .stat-card.done::after { background: var(--orange); }
+        .stat-card:hover { border-color: var(--border-light); transform: translateY(-3px); box-shadow: 0 8px 30px rgba(0,0,0,0.6); }
+        .stat-card .stat-icon { width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .stat-card .stat-icon svg { width: 26px; height: 26px; }
+        .stat-card.total .stat-icon { background: rgba(232,196,65,0.12); color: var(--accent); }
+        .stat-card.new .stat-icon { background: var(--green-bg); color: var(--green); }
+        .stat-card.process .stat-icon { background: var(--blue-bg); color: var(--blue); }
+        .stat-card.done .stat-icon { background: var(--orange-bg); color: var(--orange); }
+        .stat-card .stat-info h3 { font-family: var(--font-heading); font-size: 2.4rem; letter-spacing: 1px; color: #fff; line-height: 1; margin-bottom: 4px; }
+        .stat-card .stat-info p { font-size: 0.75rem; color: var(--text-muted); letter-spacing: 2px; text-transform: uppercase; font-weight: 600; }
+        .filters-panel { background: var(--bg-card); border: 1px solid var(--border-color); padding: 18px 22px; display: flex; gap: 15px; align-items: center; flex-wrap: wrap; margin-bottom: 20px; }
+        .search-wrapper { flex: 1; min-width: 200px; position: relative; }
+        .search-wrapper svg { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); width: 18px; height: 18px; color: var(--text-muted); pointer-events: none; }
+        .search-input { width: 100%; padding: 12px 16px 12px 44px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff; font-family: var(--font-body); font-size: 0.9rem; transition: all 0.3s; }
+        .search-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(232,196,65,0.08); }
+        .search-input::placeholder { color: var(--text-muted); }
+        .filter-select { padding: 12px 36px 12px 16px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff; font-family: var(--font-body); font-size: 0.85rem; cursor: pointer; min-width: 150px; transition: all 0.3s; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23909099' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; }
+        .filter-select:focus { outline: none; border-color: var(--accent); }
+        .btn-icon { padding: 12px 20px; background: var(--accent); border: none; color: #000; font-family: var(--font-heading); font-size: 0.9rem; letter-spacing: 2px; cursor: pointer; text-transform: uppercase; transition: all 0.3s; display: flex; align-items: center; gap: 8px; font-weight: 700; }
+        .btn-icon:hover { background: var(--accent-light); box-shadow: 0 0 30px var(--accent-glow); }
+        .btn-icon svg { width: 16px; height: 16px; }
+        .table-container { background: var(--bg-card); border: 1px solid var(--border-color); overflow: hidden; }
+        .table-container-header { padding: 16px 22px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; }
+        .table-container-header h3 { font-family: var(--font-heading); font-size: 1.3rem; letter-spacing: 2px; color: #fff; }
+        .table-container-header .count { font-size: 0.8rem; color: var(--text-muted); letter-spacing: 1px; }
+        .requests-table { width: 100%; border-collapse: collapse; }
+        .requests-table th { text-align: left; padding: 12px 22px; font-family: var(--font-heading); font-size: 0.8rem; letter-spacing: 3px; color: var(--text-muted); border-bottom: 1px solid var(--border-color); text-transform: uppercase; font-weight: 400; }
+        .requests-table td { padding: 14px 22px; border-bottom: 1px solid rgba(255,255,255,0.02); font-size: 0.88rem; }
+        .requests-table tbody tr { transition: all 0.15s; }
+        .requests-table tbody tr:hover { background: var(--bg-hover); }
+        .requests-table tbody tr:last-child td { border-bottom: none; }
+        .status-badge { display: inline-flex; align-items: center; gap: 7px; padding: 6px 14px; font-size: 0.7rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; }
+        .status-badge::before { content: ''; width: 7px; height: 7px; border-radius: 50%; }
+        .status-badge.new { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+        .status-badge.new::before { background: var(--green); box-shadow: 0 0 6px rgba(76,175,80,0.5); }
+        .status-badge.process { background: var(--blue-bg); color: var(--blue); border: 1px solid var(--blue-border); }
+        .status-badge.process::before { background: var(--blue); box-shadow: 0 0 6px rgba(66,165,245,0.5); }
+        .status-badge.done { background: var(--orange-bg); color: var(--orange); border: 1px solid var(--orange-border); }
+        .status-badge.done::before { background: var(--orange); box-shadow: 0 0 6px rgba(255,152,0,0.5); }
+        .status-badge.cancel { background: var(--red-bg); color: var(--red); border: 1px solid var(--red-border); }
+        .status-badge.cancel::before { background: var(--red); box-shadow: 0 0 6px rgba(239,83,80,0.5); }
+        .phone-link { color: var(--accent); text-decoration: none; font-weight: 600; transition: color 0.2s; font-size: 0.88rem; letter-spacing: 0.5px; }
+        .phone-link:hover { color: var(--accent-light); }
+        .actions-cell { display: flex; gap: 6px; align-items: center; }
+        .action-btn { padding: 8px 14px; font-size: 0.7rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; cursor: pointer; border: 1px solid var(--border-color); background: transparent; color: var(--text-secondary); transition: all 0.2s; font-family: var(--font-body); display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; }
+        .action-btn svg { width: 13px; height: 13px; }
+        .action-btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(232,196,65,0.05); }
+        .action-btn.delete:hover { border-color: var(--red); color: var(--red); background: var(--red-bg); }
+        .action-btn.call { background: var(--accent); border-color: var(--accent); color: #000; }
+        .action-btn.call:hover { background: var(--accent-light); border-color: var(--accent-light); }
+        .action-btn.call svg { stroke: #000; }
+        .status-select { padding: 8px 28px 8px 10px; font-size: 0.7rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; cursor: pointer; border: 1px solid var(--border-color); background: transparent; color: var(--text-secondary); font-family: var(--font-body); transition: all 0.2s; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%23909099' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; }
+        .status-select:hover { border-color: var(--accent); color: var(--accent); }
+        .status-select option { background: var(--bg-card); color: #fff; }
+        .empty-state { text-align: center; padding: 70px 20px; }
+        .empty-state svg { width: 56px; height: 56px; color: var(--text-muted); margin-bottom: 18px; opacity: 0.5; }
+        .empty-state h3 { font-family: var(--font-heading); font-size: 1.8rem; letter-spacing: 2px; margin-bottom: 6px; }
+        .empty-state p { color: var(--text-muted); font-size: 0.9rem; }
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 300; display: flex; align-items: center; justify-content: center; opacity: 0; visibility: hidden; transition: all 0.3s; }
+        .modal-overlay.active { opacity: 1; visibility: visible; }
+        .modal { background: var(--bg-card); border: 1px solid var(--border-color); padding: 30px; max-width: 440px; width: 90%; box-shadow: 0 8px 30px rgba(0,0,0,0.6); }
+        .modal h3 { font-family: var(--font-heading); font-size: 1.8rem; letter-spacing: 2px; margin-bottom: 15px; }
+        .modal p { color: var(--text-secondary); margin-bottom: 15px; font-size: 0.9rem; }
+        .modal .btn-row { display: flex; gap: 10px; justify-content: flex-end; }
+        .mobile-card { display: none; background: var(--bg-card); border: 1px solid var(--border-color); padding: 16px; margin-bottom: 10px; }
+        .mobile-card .mc-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+        .mobile-card .mc-name { font-weight: 700; font-size: 1rem; }
+        .mobile-card .mc-phone { color: var(--accent); font-size: 0.9rem; margin-bottom: 6px; }
+        .mobile-card .mc-meta { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; font-size: 0.8rem; color: var(--text-muted); }
+        .mobile-card .mc-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+        @media (max-width: 1024px) { .stats-row { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 768px) {
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.open { transform: translateX(0); }
+            .main-area { margin-left: 0; }
+            .menu-toggle { display: block; }
+            .stats-row { grid-template-columns: 1fr 1fr; gap: 8px; }
+            .stat-card { padding: 14px 16px; gap: 10px; }
+            .stat-card .stat-icon { width: 38px; height: 38px; }
+            .stat-card .stat-icon svg { width: 20px; height: 20px; }
+            .stat-card .stat-info h3 { font-size: 1.6rem; }
+            .stat-card .stat-info p { font-size: 0.65rem; letter-spacing: 1px; }
+            .filters-panel { flex-direction: column; padding: 14px; }
+            .search-wrapper { min-width: 100%; }
+            .filter-select { min-width: 100%; }
+            .top-bar { padding: 12px 16px; }
+            .content-area { padding: 16px 12px; }
+            .requests-table { display: none; }
+            .table-container-header { display: none; }
+            .table-container { background: transparent; border: none; }
+            .mobile-card { display: block; }
+        }
+    </style>
+</head>
+<body>
+
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-logo">NICE<span>ENDURO</span></div>
+        <nav class="sidebar-nav">
+            <a href="admin.html" class="active">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                Заявки
+                <span class="badge" id="sidebarBadge">0</span>
+            </a>
+            <a href="support.html">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                Техподдержка
+            </a>
+            <a href="index.html">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                На сайт
+            </a>
+        </nav>
+        <div class="sidebar-footer">NICE ENDURO © 2024</div>
+    </aside>
+
+    <div class="main-area">
+        <div class="top-bar">
+            <div style="display:flex;align-items:center;gap:12px;">
+                <button class="menu-toggle" onclick="toggleSidebar()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+                </button>
+                <h2>Заявки</h2>
+            </div>
+            <div class="top-bar-right">
+                <div class="live-dot"></div>
+                <span class="live-text">Онлайн</span>
+            </div>
+        </div>
+
+        <div class="content-area">
+            <div class="stats-row">
+                <div class="stat-card total"><div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><div class="stat-info"><h3 id="statTotal">0</h3><p>Всего</p></div></div>
+                <div class="stat-card new"><div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg></div><div class="stat-info"><h3 id="statNew">0</h3><p>Новые</p></div></div>
+                <div class="stat-card process"><div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><div class="stat-info"><h3 id="statProcess">0</h3><p>В обработке</p></div></div>
+                <div class="stat-card done"><div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div><div class="stat-info"><h3 id="statDone">0</h3><p>Обработано</p></div></div>
+            </div>
+
+            <div class="filters-panel">
+                <div class="search-wrapper">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <input type="text" class="search-input" placeholder="Поиск по имени или телефону..." oninput="renderAll()" id="searchInput">
+                </div>
+                <select class="filter-select" onchange="renderAll()" id="filterStatus">
+                    <option value="all">Все статусы</option>
+                    <option value="new">Новые</option>
+                    <option value="process">В обработке</option>
+                    <option value="done">Обработано</option>
+                    <option value="cancel">Отменено</option>
+                </select>
+                <button class="btn-icon" onclick="loadRequests()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+                    Обновить
+                </button>
+            </div>
+
+            <div class="table-container">
+                <div class="table-container-header"><h3>Список заявок</h3><span class="count" id="tableCount">0 записей</span></div>
+                <table class="requests-table" id="requestsTable">
+                    <thead><tr><th>№</th><th>Дата / Время</th><th>Имя</th><th>Телефон</th><th>Тип</th><th>Статус</th><th>Действия</th></tr></thead>
+                    <tbody id="tableBody"></tbody>
+                </table>
+                <div class="empty-state" id="emptyState" style="display:none;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    <h3>Заявок нет</h3><p>Новые заявки с сайта будут появляться здесь</p>
+                </div>
+                <div id="mobileCards"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="deleteModal">
+        <div class="modal"><h3>Удалить заявку?</h3><p>Это действие нельзя отменить.</p>
+            <div class="btn-row"><button class="btn-icon" style="background:transparent;border:1px solid var(--border-color);color:var(--text-secondary);" onclick="closeDeleteModal()">Отмена</button><button class="btn-icon" style="background:var(--red);border-color:var(--red);" id="confirmDeleteBtn">Удалить</button></div>
+        </div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://zrooftnesjmcaqjwojwi.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpyb29mdG5lc2ptY2FxandvandpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk2OTM5OTcsImV4cCI6MjA5NTI2OTk5N30.FNncL110petZQIy5COkYkArQtFq0yxszqI93lMri9YY';
+        const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        let deleteTargetId = null;
+        let allRequests = [];
+
+        async function loadRequests() {
+            const { data } = await sb.from('requests').select('*').order('created_at', { ascending: false });
+            allRequests = data || [];
+            renderAll();
+            updateStats();
+        }
+
+        async function updateStatus(id, status) {
+            await sb.from('requests').update({ status }).eq('id', id);
+            loadRequests();
+        }
+
+        function confirmDelete(id) { deleteTargetId = id; document.getElementById('deleteModal').classList.add('active'); }
+        function closeDeleteModal() { deleteTargetId = null; document.getElementById('deleteModal').classList.remove('active'); }
+        async function executeDelete() {
+            if (!deleteTargetId) return;
+            await sb.from('requests').delete().eq('id', deleteTargetId);
+            deleteTargetId = null; document.getElementById('deleteModal').classList.remove('active'); loadRequests();
+        }
+
+        function getStatusLabel(s) { return { new:'Новая', process:'В обработке', done:'Обработано', cancel:'Отменено' }[s] || s; }
+        function getTypeLabel(t) { return { consultation:'Консультация', call:'Звонок', testdrive:'Тест-драйв', service:'Сервис', other:'Другое' }[t] || t; }
+        function formatDate(iso) { const d = new Date(iso); return d.toLocaleDateString('ru-RU') + ' ' + d.toLocaleTimeString('ru-RU', { hour:'2-digit', minute:'2-digit' }); }
+
+        function getFilteredRequests() {
+            const search = (document.getElementById('searchInput').value || '').toLowerCase();
+            const filter = document.getElementById('filterStatus').value;
+            let requests = [...allRequests];
+            if (search) requests = requests.filter(r => r.name.toLowerCase().includes(search) || r.phone.includes(search));
+            if (filter !== 'all') requests = requests.filter(r => r.status === filter);
+            return requests;
+        }
+
+        function updateStats() {
+            document.getElementById('statTotal').textContent = allRequests.length;
+            document.getElementById('statNew').textContent = allRequests.filter(r => r.status === 'new').length;
+            document.getElementById('statProcess').textContent = allRequests.filter(r => r.status === 'process').length;
+            document.getElementById('statDone').textContent = allRequests.filter(r => r.status === 'done').length;
+            document.getElementById('sidebarBadge').textContent = allRequests.filter(r => r.status === 'new').length;
+        }
+
+        function renderTable() {
+            const requests = getFilteredRequests();
+            const tbody = document.getElementById('tableBody');
+            const empty = document.getElementById('emptyState');
+            const table = document.getElementById('requestsTable');
+            document.getElementById('tableCount').textContent = requests.length + ' записей';
+            if (requests.length === 0) { table.style.display = 'none'; empty.style.display = 'block'; }
+            else { table.style.display = ''; empty.style.display = 'none'; }
+            tbody.innerHTML = requests.map((r, i) => `
+                <tr>
+                    <td>#${i + 1}</td><td>${formatDate(r.created_at)}</td><td><strong>${r.name}</strong></td>
+                    <td><a href="tel:${r.phone}" class="phone-link">${r.phone}</a></td><td>${getTypeLabel(r.type)}</td>
+                    <td><span class="status-badge ${r.status}">${getStatusLabel(r.status)}</span></td>
+                    <td class="actions-cell">
+                        <button class="action-btn call" onclick="window.location.href='tel:${r.phone}'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6.62 10.79a15.05 15.05 0 0 0 6.59 6.59l2.2-2.2a1 1 0 0 1 1.02-.24 11.5 11.5 0 0 0 3.6.58 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1 11.5 11.5 0 0 0 .58 3.6 1 1 0 0 1-.24 1.02l-2.22 2.17z"/></svg>Звонок</button>
+                        <select class="status-select" onchange="updateStatus(${r.id}, this.value)"><option value="">Статус</option><option value="new" ${r.status==='new'?'selected':''}>Новая</option><option value="process" ${r.status==='process'?'selected':''}>В обработке</option><option value="done" ${r.status==='done'?'selected':''}>Обработано</option><option value="cancel" ${r.status==='cancel'?'selected':''}>Отменено</option></select>
+                        <button class="action-btn delete" onclick="confirmDelete(${r.id})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>Удалить</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function renderMobileCards() {
+            const requests = getFilteredRequests();
+            document.getElementById('mobileCards').innerHTML = requests.map((r, i) => `
+                <div class="mobile-card">
+                    <div class="mc-header"><div><div class="mc-name">#${i + 1} ${r.name}</div><div class="mc-phone"><a href="tel:${r.phone}" style="color:inherit;text-decoration:none;">${r.phone}</a></div></div><span class="status-badge ${r.status}">${getStatusLabel(r.status)}</span></div>
+                    <div class="mc-meta"><span>${formatDate(r.created_at)}</span><span>·</span><span>${getTypeLabel(r.type)}</span></div>
+                    <div class="mc-actions">
+                        <button class="action-btn call" onclick="window.location.href='tel:${r.phone}'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6.62 10.79a15.05 15.05 0 0 0 6.59 6.59l2.2-2.2a1 1 0 0 1 1.02-.24 11.5 11.5 0 0 0 3.6.58 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1 11.5 11.5 0 0 0 .58 3.6 1 1 0 0 1-.24 1.02l-2.22 2.17z"/></svg>Звонок</button>
+                        <select class="status-select" onchange="updateStatus(${r.id}, this.value)"><option value="">Статус</option><option value="new" ${r.status==='new'?'selected':''}>Новая</option><option value="process" ${r.status==='process'?'selected':''}>В обработке</option><option value="done" ${r.status==='done'?'selected':''}>Обработано</option><option value="cancel" ${r.status==='cancel'?'selected':''}>Отменено</option></select>
+                        <button class="action-btn delete" onclick="confirmDelete(${r.id})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>Удалить</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderAll() { renderTable(); renderMobileCards(); }
+        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
+        document.addEventListener('click', function(e) { const s = document.getElementById('sidebar'); if (s.classList.contains('open') && !s.contains(e.target) && !e.target.closest('.menu-toggle')) s.classList.remove('open'); });
+        document.getElementById('confirmDeleteBtn').addEventListener('click', executeDelete);
+        document.getElementById('deleteModal').addEventListener('click', function(e) { if (e.target === this) closeDeleteModal(); });
+
+        loadRequests();
+        setInterval(loadRequests, 30000);
+    </script>
+</body>
+</html>
