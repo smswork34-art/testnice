@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>NICE ENDURO | Мототехника в Кунгуре — Официальный дилер</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root {
+            --bg-primary: #030305; --bg-secondary: #0A0A0F; --bg-card: #111118;
+            --accent: #E8C441; --accent-light: #F5DC70; --accent-dark: #B89920;
+            --accent-glow: rgba(232, 196, 65, 0.6); --gold: #E8C441;
+            --text-primary: #FAFAFC; --text-secondary: #A0A0A8; --text-muted: #5A5A64;
+            --border-color: #1C1C26; --border-light: #282834;
+            --font-heading: 'Bebas Neue', 'Arial Narrow', 'Impact', sans-serif;
+            --font-body: 'Inter', sans-serif;
+            --shadow-card: 0 4px 20px rgba(0,0,0,0.4);
+            --shadow-hover: 0 12px 35px rgba(0,0,0,0.6), 0 0 30px rgba(232,196,65,0.15);
+            --safe-area-top: env(safe-area-inset-top, 0px);
+            --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+        }
+        *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+        html{scroll-behavior:smooth;background:var(--bg-primary)}
+        body{background-color:var(--bg-primary);color:var(--text-primary);font-family:var(--font-body);line-height:1.6;overflow-x:hidden;-webkit-font-smoothing:antialiased;position:relative;min-height:100vh;padding-top:var(--safe-area-top)}
+        body::after{content:'';position:fixed;inset:0;z-index:9999;pointer-events:none;opacity:0.035;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");background-size:256px 256px}
+        body::-webkit-scrollbar{width:5px}
+        body::-webkit-scrollbar-track{background:var(--bg-primary)}
+        body::-webkit-scrollbar-thumb{background:linear-gradient(180deg,var(--accent-dark),var(--accent),var(--accent-dark));border-radius:0;box-shadow:0 0 8px var(--accent-glow)}
+        *{scrollbar-width:thin;scrollbar-color:var(--accent) var(--bg-primary)}
+        #particlesCanvas{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;opacity:0.4}
+        .container{max-width:1300px;margin:0 auto;padding:0 30px;position:relative;z-index:2}
+        h1,h2,h3{font-family:var(--font-heading);letter-spacing:2px;text-transform:uppercase;font-weight:400;color:#FFFFFF}
+        .section-title-wrapper h2,.hero h1{font-size:clamp(3rem,8vw,5.5rem);line-height:0.9;margin-bottom:1.5rem;background:linear-gradient(90deg,#FFFFFF 0%,#FFFFFF 30%,#FFF8DC 50%,#FFFFFF 70%,#FFFFFF 100%);background-size:200% 100%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:goldShine 5s ease-in-out infinite}
+        @keyframes goldShine{0%,100%{background-position:-200% 0}50%{background-position:200% 0}}
+        .section-title-wrapper{margin-bottom:3rem}
+        .section-title-wrapper .subtitle{font-family:var(--font-body);font-size:0.85rem;text-transform:uppercase;letter-spacing:6px;color:var(--accent);margin-bottom:0.8rem;font-weight:700;display:flex;align-items:center;gap:15px}
+        .section-title-wrapper .subtitle::before{content:'';display:block;width:50px;height:3px;background:var(--accent);box-shadow:0 0 15px var(--accent-glow);border-radius:2px}
+        .btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;padding:16px 38px;font-family:var(--font-heading);font-size:1.2rem;letter-spacing:3px;text-decoration:none;text-transform:uppercase;transition:transform 0.35s ease,box-shadow 0.35s ease,background 0.35s ease;cursor:pointer;border:none;position:relative;overflow:hidden;z-index:1;background:var(--accent);color:#000;font-weight:700;transform:translateY(0)}
+        .btn:hover{background:var(--accent-light);transform:translateY(-3px);box-shadow:0 0 35px var(--accent-glow)}
+        .btn:active{transform:translateY(0)}
+        .btn:disabled{opacity:0.5;cursor:not-allowed;transform:none!important;box-shadow:none!important}
+        .btn-outline{background:transparent;color:var(--accent);box-shadow:inset 0 0 0 2px rgba(232,196,65,0.4)}
+        .btn-outline:hover{background:var(--accent);color:#000;box-shadow:0 0 35px var(--accent-glow)}
+        .btn-sm{padding:12px 24px;font-size:1rem;letter-spacing:2px}
+        .btn-back{background:transparent;box-shadow:inset 0 0 0 1px var(--border-color);color:var(--text-secondary);padding:10px 22px;font-size:1rem;gap:8px;display:inline-flex;align-items:center;border:none;transition:all 0.3s ease}
+        .btn-back:hover{box-shadow:inset 0 0 0 1px var(--accent);color:var(--accent);background:rgba(232,196,65,0.05);transform:translateX(-5px)}
+        .icon{display:inline-block;width:1em;height:1em;fill:currentColor;vertical-align:middle}
+        .icon-outline{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+        .logo{display:flex;align-items:center;gap:14px;font-family:var(--font-heading);font-size:2rem;letter-spacing:6px;color:#fff;cursor:pointer;transition:transform 0.2s ease;text-transform:uppercase;position:relative}
+        .logo:hover{transform:scale(1.03)}
+        .logo::after{content:'';position:absolute;inset:-4px -8px;border-radius:4px;background:linear-gradient(135deg,rgba(232,196,65,0) 0%,rgba(232,196,65,0.3) 30%,rgba(255,255,255,0.1) 50%,rgba(232,196,65,0.3) 70%,rgba(232,196,65,0) 100%);background-size:200% 200%;opacity:0;transition:opacity 0.4s ease;z-index:-1;animation:hologram 3s ease-in-out infinite paused}
+        .logo:hover::after{opacity:1;animation-play-state:running}
+        @keyframes hologram{0%,100%{background-position:0% 0%}25%{background-position:100% 0%}50%{background-position:100% 100%}75%{background-position:0% 100%}}
+        .logo-img{width:44px;height:44px;object-fit:contain}
+        .header{padding:12px 0;background:rgba(3,3,5,0.85);backdrop-filter:blur(25px) saturate(180%);-webkit-backdrop-filter:blur(25px) saturate(180%);position:fixed;width:100%;top:0;z-index:1000;border-bottom:1px solid rgba(255,255,255,0.04);transition:all 0.4s ease}
+        .header.scrolled{background:rgba(3,3,5,0.98);box-shadow:0 8px 30px rgba(0,0,0,0.7);padding:8px 0}
+        .header .container{display:flex;justify-content:space-between;align-items:center}
+        .contact-header a{color:var(--text-primary);text-decoration:none;font-weight:700;font-size:1.1rem;letter-spacing:1px;transition:all 0.2s ease;display:flex;align-items:center;gap:8px;padding:8px 16px;border:1px solid rgba(255,255,255,0.08)}
+        .contact-header a:hover{color:#fff;border-color:var(--accent);background:rgba(232,196,65,0.08);box-shadow:0 0 20px rgba(232,196,65,0.15)}
+        .contact-header .phone-icon{width:16px;height:16px;fill:none;stroke:var(--accent);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+        .main-content{padding-top:76px;min-height:100vh;position:relative;z-index:1}
+        .page{display:none}
+        .page.active{display:block;animation:pageIn 0.4s ease}
+        @keyframes pageIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+        .hero{height:100vh;min-height:650px;display:flex;align-items:center;position:relative;overflow:hidden;background:var(--bg-primary)}
+        .hero-video{position:absolute;top:50%;left:50%;min-width:100%;min-height:100%;width:auto;height:auto;transform:translate(-50%,-50%);z-index:0;object-fit:cover}
+        .hero-overlay{position:absolute;inset:0;z-index:1;background:radial-gradient(ellipse at 30% 50%,rgba(3,3,5,0.2) 0%,rgba(3,3,5,0.95) 80%)}
+        .hero-shadow{position:absolute;bottom:15%;left:50%;transform:translateX(-50%);width:min(400px,80vw);height:60px;background:radial-gradient(ellipse,rgba(0,0,0,0.7) 0%,transparent 70%);filter:blur(15px);z-index:2;pointer-events:none;transition:transform 0.1s ease-out}
+        .hero-fog{position:absolute;bottom:0;left:0;width:150%;height:30%;background:linear-gradient(to top,rgba(3,3,5,0.9) 0%,transparent 100%);z-index:3;pointer-events:none}
+        .hero-fog::after{content:'';position:absolute;bottom:0;left:-50%;width:200%;height:100%;background:radial-gradient(ellipse at 30% 100%,rgba(232,196,65,0.04) 0%,transparent 60%);animation:fogDrift 8s ease-in-out infinite}
+        @keyframes fogDrift{0%,100%{transform:translateX(0)}50%{transform:translateX(3%)}}
+        .hero-content{position:relative;z-index:4;max-width:650px}
+        .hero-badge{display:inline-flex;align-items:center;gap:10px;background:rgba(232,196,65,0.1);border:1px solid rgba(232,196,65,0.25);padding:8px 20px;font-size:0.8rem;letter-spacing:4px;color:var(--accent);margin-bottom:2rem;animation:fadeInUp 0.8s ease;position:relative;overflow:hidden}
+        .hero-badge::after{content:'';position:absolute;top:0;left:-100%;width:30px;height:100%;background:linear-gradient(90deg,transparent,rgba(232,196,65,0.4),transparent);animation:scanLine 3s ease-in-out infinite}
+        @keyframes scanLine{0%{left:-100%}50%{left:150%}100%{left:150%}}
+        .hero-badge::before{content:'';width:8px;height:8px;background:var(--accent);border-radius:50%;animation:blink 1.5s infinite;flex-shrink:0}
+        @keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+        .hero h1 .accent{color:var(--accent);display:block;font-size:0.7em;-webkit-text-fill-color:var(--accent)}
+        .hero-typing{font-size:1.2rem;color:#D1D1D6;margin-bottom:40px;max-width:500px;font-weight:400;border-left:4px solid var(--accent);padding-left:25px;min-height:60px;animation:fadeInUp 0.8s ease 0.4s both}
+        .hero-typing .cursor{display:inline-block;width:2px;height:1.2em;background:var(--accent);margin-left:2px;vertical-align:text-bottom;animation:cursorBlink 0.7s infinite}
+        @keyframes cursorBlink{0%,100%{opacity:1}50%{opacity:0}}
+        .hero-buttons{display:flex;gap:16px;flex-wrap:wrap;row-gap:12px;animation:fadeInUp 0.8s ease 0.6s both}
+        @keyframes fadeInUp{from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:translateY(0)}}
+        .tachometer{position:absolute;right:5%;top:50%;transform:translateY(-50%);z-index:3;pointer-events:none;opacity:0.15}
+        .tachometer svg{width:clamp(200px,25vw,350px);height:auto}
+
+        .section-divider{position:relative;height:60px;overflow:hidden}
+        .section-divider::before{content:'';position:absolute;bottom:0;left:0;width:100%;height:100%;background:var(--bg-secondary);clip-path:polygon(0 100%,100% 100%,100% 25%,0 65%)}
+        .section-divider .neon-line{position:absolute;bottom:0;left:0;width:100%;height:2px;background:var(--accent);box-shadow:0 0 20px var(--accent-glow),0 0 40px var(--accent-glow);opacity:0;transition:opacity 0.8s ease}
+        .section-divider .neon-line.visible{opacity:1}
+        .section-divider.reverse::before{clip-path:polygon(0 100%,100% 100%,100% 65%,0 25%)}
+        .section{padding:80px 0;position:relative}
+        .section-dark{background:var(--bg-secondary)}
+        .section-dark::before{content:'';position:absolute;inset:0;pointer-events:none;z-index:0;background-image:linear-gradient(rgba(232,196,65,0.02) 1px,transparent 1px),linear-gradient(90deg,rgba(232,196,65,0.02) 1px,transparent 1px);background-size:60px 60px;opacity:0.5}
+        #consult.section-dark::before{background-image:linear-gradient(45deg,rgba(232,196,65,0.015) 1px,transparent 1px),linear-gradient(-45deg,rgba(232,196,65,0.015) 1px,transparent 1px);background-size:40px 40px}
+
+        .features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.5rem;margin-top:2rem}
+        .feature-card{background:var(--bg-card);border:1px solid var(--border-color);padding:2.5rem 2rem;transition:transform 0.4s ease,box-shadow 0.4s ease,border-color 0.4s ease;position:relative;overflow:hidden;z-index:1;transform:translateY(0)}
+        .feature-card::after{content:'';position:absolute;top:-50%;right:-50%;width:200px;height:200px;background:radial-gradient(circle,rgba(232,196,65,0.06) 0%,transparent 70%);pointer-events:none;transition:opacity 0.4s;opacity:0}
+        .feature-card:hover{border-color:var(--accent);transform:translateY(-8px);box-shadow:var(--shadow-hover)}
+        .feature-card:hover::after{opacity:1}
+        .feature-icon{width:48px;height:48px;margin-bottom:1.2rem;color:var(--accent);transition:transform 0.3s ease,filter 0.3s ease}
+        .feature-card:hover .feature-icon{transform:scale(1.1);filter:drop-shadow(0 0 15px var(--accent-glow))}
+        .feature-card h3{font-size:1.8rem;margin-bottom:0.8rem;color:#fff}
+        .feature-card p{color:var(--text-secondary);font-size:0.95rem;line-height:1.6}
+
+        .catalog-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.5rem;margin-top:2rem}
+        .catalog-card{background:var(--bg-card);border:1px solid var(--border-color);overflow:hidden;transition:transform 0.4s ease,box-shadow 0.4s ease,border-color 0.4s ease;cursor:pointer;position:relative;transform:translateY(0)}
+        .catalog-card:hover{transform:translateY(-10px);box-shadow:var(--shadow-hover);border-color:var(--accent)}
+        .card-image-wrap{position:relative;overflow:hidden;height:240px;background:var(--bg-card)}
+        .card-image-wrap img{width:100%;height:100%;object-fit:cover;filter:grayscale(20%) contrast(1.1);transition:transform 0.6s ease,filter 0.6s ease}
+        .catalog-card:hover .card-image-wrap img{filter:grayscale(0%) contrast(1.05);transform:scale(1.05)}
+        .card-image-wrap::after{content:'';position:absolute;inset:0;background:linear-gradient(to top,var(--bg-card) 0%,transparent 35%);z-index:1}
+        .card-content{padding:1.3rem;position:relative;z-index:2}
+        .card-content h3{font-size:2rem;margin-bottom:0.3rem;display:flex;align-items:center;gap:10px;transition:color 0.3s;color:#fff}
+        .card-content h3 svg{width:26px;height:26px;fill:var(--accent)}
+        .catalog-card:hover .card-content h3{color:var(--accent)}
+        .card-content p{color:var(--text-secondary);margin-bottom:0.8rem;font-size:0.9rem}
+        .card-link-text{font-family:var(--font-heading);color:var(--accent);font-size:1rem;letter-spacing:2px;display:inline-flex;align-items:center;gap:6px;transition:gap 0.3s}
+        .catalog-card:hover .card-link-text{gap:12px}
+
+        .category-hero{padding:50px 0 35px;margin-bottom:2rem;border-bottom:2px solid var(--border-color);position:relative}
+        .category-hero::after{content:'';position:absolute;bottom:-2px;left:0;width:80px;height:2px;background:var(--accent);box-shadow:0 0 15px var(--accent-glow)}
+        .category-hero h1{font-size:clamp(2.8rem,6vw,4rem);margin-bottom:0.5rem;color:#fff}
+        .category-hero .cat-desc{color:var(--text-secondary);font-size:0.95rem;max-width:550px;line-height:1.7}
+        .breadcrumbs{display:flex;gap:8px;align-items:center;margin-bottom:1.2rem;font-size:0.8rem;color:var(--text-muted);flex-wrap:wrap}
+        .breadcrumbs a{color:var(--accent);text-decoration:none;cursor:pointer;transition:color 0.3s;font-weight:600}
+        .breadcrumbs a:hover{color:#fff}
+
+        .products-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.2rem}
+        .product-card{background:var(--bg-card);border:1px solid var(--border-color);transition:transform 0.4s ease,box-shadow 0.4s ease,border-color 0.4s ease;cursor:pointer;overflow:hidden;transform:translateY(0)}
+        .product-card:hover{border-color:var(--accent);transform:translateY(-5px);box-shadow:var(--shadow-card)}
+        .product-card-image{width:100%;height:180px;overflow:hidden;position:relative}
+        .product-card-image img{width:100%;height:100%;object-fit:cover;transition:transform 0.5s ease;filter:brightness(0.9)}
+        .product-card:hover .product-card-image img{transform:scale(1.04);filter:brightness(1)}
+        .product-card-image .stock-tag{position:absolute;top:10px;right:10px;padding:4px 10px;font-size:0.65rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;z-index:2}
+        .product-card-image .stock-tag.in-stock{background:rgba(76,175,80,0.2);color:#4CAF50;border:1px solid rgba(76,175,80,0.3)}
+        .product-card-image .stock-tag.order{background:rgba(232,196,65,0.2);color:var(--accent);border:1px solid rgba(232,196,65,0.3)}
+        .product-card-body{padding:1.2rem}
+        .product-card-body h3{font-size:1.6rem;margin-bottom:0.6rem;color:#fff}
+        .product-card-body .specs-row{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:1rem}
+        .product-card-body .specs-row span{font-size:0.75rem;color:var(--text-muted);padding:3px 8px;background:rgba(255,255,255,0.02);border:1px solid var(--border-color)}
+        .product-card-footer{display:flex;align-items:center;justify-content:space-between;padding-top:0.8rem;border-top:1px solid var(--border-color)}
+        .product-card-footer .price{font-family:var(--font-heading);font-size:1.8rem;color:var(--accent);letter-spacing:1px}
+        .product-card-footer .arrow{color:var(--accent);transition:transform 0.3s}
+        .product-card:hover .product-card-footer .arrow{transform:translateX(4px)}
+
+        .product-detail{padding:30px 0 50px}
+        .product-detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:3rem;margin-bottom:3rem}
+        .product-detail-image{position:relative;background:var(--bg-card);border:1px solid var(--border-color);overflow:hidden;aspect-ratio:4/3}
+        .product-detail-image img{width:100%;height:100%;object-fit:cover}
+        .product-detail-image .detail-badge{position:absolute;top:15px;left:15px;background:rgba(0,0,0,0.9);color:var(--accent);font-family:var(--font-heading);font-size:0.9rem;padding:5px 14px;letter-spacing:2px;border:1px solid rgba(232,196,65,0.4)}
+        .product-detail-info h1{font-size:clamp(2.5rem,5vw,4rem);margin-bottom:0.8rem;line-height:1;color:#fff}
+        .product-detail-info .detail-price{font-family:var(--font-heading);font-size:2.5rem;color:var(--accent);letter-spacing:2px;margin-bottom:0.8rem}
+        .detail-specs-table{width:100%;border-collapse:collapse;margin-bottom:1.5rem}
+        .detail-specs-table tr{border-bottom:1px solid var(--border-color)}
+        .detail-specs-table td{padding:10px 0;font-size:0.9rem}
+        .detail-specs-table td:first-child{color:var(--text-muted);font-weight:500;width:40%}
+        .detail-specs-table td:last-child{color:#fff;font-weight:600}
+        .product-detail-description{background:var(--bg-card);border:1px solid var(--border-color);padding:2rem;margin-bottom:2rem}
+        .product-detail-description h2{font-size:2rem;margin-bottom:0.8rem;color:#fff}
+        .product-detail-description p{color:var(--text-secondary);line-height:1.7;font-size:0.95rem}
+        .detail-cta{background:linear-gradient(135deg,rgba(232,196,65,0.06),rgba(232,196,65,0.01));border:2px solid var(--accent);padding:2rem;text-align:center}
+        .detail-cta h3{font-size:1.6rem;margin-bottom:0.5rem;color:#fff}
+        .detail-cta p{color:var(--text-secondary);margin-bottom:1.2rem}
+        .related-products{margin-top:3rem}
+        .related-products h2{font-size:2.2rem;margin-bottom:1.5rem;color:#fff}
+        .related-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:1rem}
+
+        .skeleton{background:linear-gradient(90deg,var(--bg-card) 25%,#1a1a24 50%,var(--bg-card) 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:0}
+        @keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+        .skeleton-card{height:380px}
+        .skeleton-title{height:40px;width:60%;margin-bottom:1rem}
+        .skeleton-text{height:20px;width:80%;margin-bottom:0.5rem}
+        .skeleton-text.short{width:40%}
+
+        .toast-container{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);z-index:10000;display:flex;flex-direction:column;gap:10px;align-items:center;pointer-events:none;width:90vw;max-width:500px}
+        .toast{background:var(--bg-card);border:1px solid var(--accent);color:var(--accent);padding:14px 28px;font-family:var(--font-heading);letter-spacing:2px;font-size:0.95rem;box-shadow:0 0 30px rgba(0,0,0,0.6),0 0 15px var(--accent-glow);opacity:0;transform:translateY(20px);transition:all 0.4s ease;pointer-events:auto;text-align:center;max-width:100%}
+        .toast.show{opacity:1;transform:translateY(0)}
+        .toast.error{border-color:#EF5350;color:#EF5350;box-shadow:0 0 30px rgba(0,0,0,0.6),0 0 15px rgba(239,83,80,0.3)}
+
+        .reviews-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:1.5rem;margin-top:2rem}
+        .review-card{background:var(--bg-card);border:1px solid var(--border-color);padding:2rem;transition:all 0.4s ease;position:relative}
+        .review-card::before{content:'"';position:absolute;top:5px;right:20px;font-size:5rem;color:rgba(232,196,65,0.08);font-family:serif;line-height:1;pointer-events:none}
+        .review-card:hover{border-color:var(--accent);box-shadow:var(--shadow-card);transform:translateY(-4px)}
+        .review-stars{color:var(--gold);font-size:1.1rem;margin-bottom:0.8rem;letter-spacing:3px}
+        .review-text{color:var(--text-primary);font-style:italic;margin-bottom:1.2rem;font-size:0.95rem;line-height:1.6}
+        .review-author{display:flex;align-items:center;gap:12px;border-top:1px solid var(--border-color);padding-top:1rem}
+        .review-author-avatar{width:38px;height:38px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-family:var(--font-heading);font-size:1rem;color:#000}
+        .review-author strong{color:#fff;display:block;font-size:0.9rem}
+        .review-author small{color:var(--text-muted);font-size:0.75rem}
+
+        .calculator{background:var(--bg-card);border:1px solid var(--border-color);padding:2.5rem}
+        .calc-steps{display:flex;gap:1rem;margin-bottom:1.5rem;flex-wrap:wrap}
+        .calc-group{flex:1;min-width:160px}
+        .calc-group label{display:block;font-family:var(--font-heading);font-size:1rem;letter-spacing:2px;margin-bottom:0.5rem;color:var(--accent)}
+        .calc-group select,.calc-group input{width:100%;padding:11px 14px;background:var(--bg-primary);border:1px solid var(--border-color);color:#fff;font-family:var(--font-body);font-size:0.9rem;transition:border-color 0.3s}
+        .calc-group select:focus,.calc-group input:focus{outline:none;border-color:var(--accent)}
+        .calc-result{background:var(--bg-primary);border:2px solid var(--accent);padding:1.2rem;margin-top:1.2rem;display:none}
+        .calc-result.show{display:block;animation:fadeInUp 0.3s ease}
+        .calc-result h3{color:#fff}
+        .calc-result h3 span{color:var(--accent)}
+
+        .lead-form{display:flex;gap:10px;margin-top:1.2rem;flex-wrap:wrap}
+        .lead-form input{flex:1;min-width:160px;padding:12px 16px;background:var(--bg-primary);border:1px solid var(--border-color);color:#fff;font-family:var(--font-body);font-size:0.9rem;transition:border-color 0.3s}
+        .lead-form input:focus{outline:none;border-color:var(--accent)}
+        .lead-form input.error{border-color:#EF5350;box-shadow:0 0 8px rgba(239,83,80,0.3)}
+
+        .popup-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);z-index:2100;display:flex;align-items:safe center;justify-content:center;opacity:0;visibility:hidden;transition:all 0.4s ease;backdrop-filter:blur(5px);padding:20px}
+        .popup-overlay.active{opacity:1;visibility:visible}
+        .popup{background:var(--bg-card);border:2px solid var(--accent);padding:2.5rem;max-width:440px;width:100%;text-align:center;position:relative}
+        .popup-close{position:absolute;top:8px;right:12px;background:none;border:none;color:#fff;font-size:1.6rem;cursor:pointer;transition:color 0.3s}
+        .popup-close:hover{color:var(--accent)}
+        .popup h2{font-size:2rem;margin-bottom:0.8rem;color:#fff}
+
+        .brands-section{padding:60px 0;background:var(--bg-secondary);border-top:1px solid var(--border-color);border-bottom:1px solid var(--border-color);overflow:hidden;white-space:nowrap;position:relative}
+        .brands-section::before,.brands-section::after{content:'';position:absolute;top:0;width:60px;height:100%;z-index:2;pointer-events:none}
+        .brands-section::before{left:0;background:linear-gradient(to right,var(--bg-secondary),transparent)}
+        .brands-section::after{right:0;background:linear-gradient(to left,var(--bg-secondary),transparent)}
+        .brands-track{display:flex;gap:2.5rem;animation:scroll 30s linear infinite;width:max-content}
+        .brands-track span{font-family:var(--font-heading);font-size:2.2rem;letter-spacing:3px;color:#2A2A32;transition:all 0.4s;cursor:default}
+        .brands-track span:hover{color:var(--accent);text-shadow:0 0 20px var(--accent-glow)}
+        @keyframes scroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+
+        .contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:2.5rem;align-items:start}
+        .contact-info-block{background:var(--bg-card);padding:2rem;border:1px solid var(--border-color)}
+        .contact-item{margin-bottom:1.5rem;display:flex;align-items:flex-start;gap:12px}
+        .contact-icon{width:20px;height:20px;color:var(--accent);flex-shrink:0;margin-top:3px}
+        .contact-text strong{display:block;font-family:var(--font-heading);font-size:1.2rem;letter-spacing:2px;color:#fff;margin-bottom:2px}
+        .contact-text{color:var(--text-secondary);line-height:1.6;font-size:0.9rem}
+        #mapContainer{background:var(--bg-card);border:1px solid var(--border-color);width:100%;min-height:380px}
+        #mapContainer iframe{width:100%;height:100%;min-height:380px;border:0}
+
+        .footer{background:var(--bg-card);border-top:1px solid var(--border-color);padding:40px 0 20px;position:relative;z-index:1}
+        .footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:2rem;margin-bottom:25px}
+        .footer-col h4{font-size:1.2rem;letter-spacing:2px;color:#fff;margin-bottom:1rem}
+        .footer-col p,.footer-col a{color:var(--text-muted);font-size:0.85rem;line-height:2;text-decoration:none;transition:color 0.3s;display:block;cursor:pointer}
+        .footer-col a:hover{color:var(--accent)}
+        .footer-bottom{text-align:center;padding-top:20px;border-top:1px solid var(--border-color);color:var(--text-muted);font-size:0.75rem;letter-spacing:1px}
+        .reveal{opacity:0;transform:translateY(30px);transition:opacity 0.7s ease,transform 0.7s ease}
+        .reveal.visible{opacity:1;transform:translateY(0)}
+
+        .scroll-to-top{position:fixed;bottom:20px;right:20px;z-index:999;background:var(--bg-card);border:2px solid var(--accent);width:45px;height:45px;display:flex;align-items:center;justify-content:center;cursor:pointer;opacity:0;visibility:hidden;transition:all 0.4s ease;transform:translateY(10px)}
+        .scroll-to-top.visible{opacity:1;visibility:visible;transform:translateY(0)}
+        .scroll-to-top.chat-open{bottom:440px}
+        .scroll-to-top:hover{background:var(--accent);box-shadow:0 0 25px var(--accent-glow)}
+        .scroll-to-top svg{width:18px;height:18px;fill:none;stroke:#000;stroke-width:2.5}
+
+        .sticky-cta{display:none;position:fixed;bottom:0;left:0;right:0;z-index:990;background:var(--bg-card);border-top:1px solid var(--accent);padding:12px 16px calc(12px + var(--safe-area-bottom));box-shadow:0 -4px 20px rgba(0,0,0,0.5)}
+        .sticky-cta .btn{width:100%}
+
+        .chat-widget{position:fixed;bottom:80px;right:20px;z-index:998}
+        .chat-bubble{width:50px;height:50px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 0 25px var(--accent-glow);transition:transform 0.3s}
+        .chat-bubble:hover{transform:scale(1.08)}
+        .chat-bubble svg{width:22px;height:22px;stroke:#000;stroke-width:2.5}
+        .chat-window{position:fixed;bottom:145px;right:20px;width:340px;height:420px;background:var(--bg-card);border:1px solid var(--border-color);display:none;flex-direction:column;z-index:997;box-shadow:0 20px 60px rgba(0,0,0,0.8)}
+        .chat-window.open{display:flex}
+        .chat-window-header{padding:12px 16px;padding-top:calc(12px + var(--safe-area-top));border-bottom:1px solid var(--border-color);display:flex;justify-content:space-between;align-items:center;background:rgba(0,0,0,0.3)}
+        .chat-window-header h3{font-size:1.1rem;letter-spacing:2px;color:#fff}
+        .chat-window-header button{background:none;border:none;color:#fff;font-size:1.3rem;cursor:pointer}
+        .chat-window-messages{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px}
+        .cw-msg{padding:8px 12px;font-size:0.82rem;max-width:85%;line-height:1.4;word-break:break-word}
+        .cw-msg.client{background:rgba(232,196,65,0.12);border:1px solid rgba(232,196,65,0.2);align-self:flex-end;color:#fff}
+        .cw-msg.support{background:#1A1A22;align-self:flex-start;color:#fff}
+        .cw-msg .cw-time{font-size:0.6rem;color:var(--text-muted);margin-top:3px}
+        .cw-system{text-align:center;padding:8px;margin:4px 0;background:rgba(239,83,80,0.1);border:1px solid rgba(239,83,80,0.2);color:#EF5350;font-size:0.75rem;font-weight:600;letter-spacing:0.5px}
+        .cw-typing{align-self:flex-start;padding:6px 12px;font-size:0.75rem;color:var(--text-muted);display:none;align-items:center;gap:4px}
+        .cw-typing.show{display:flex}
+        .cw-typing span{width:5px;height:5px;background:var(--accent);border-radius:50%;animation:typingDot 1.4s infinite}
+        .cw-typing span:nth-child(2){animation-delay:0.2s}
+        .cw-typing span:nth-child(3){animation-delay:0.4s}
+        @keyframes typingDot{0%,60%,100%{opacity:0.3}30%{opacity:1}}
+        .chat-window-input{padding:10px;border-top:1px solid var(--border-color);display:flex;gap:6px;padding-bottom:calc(10px + var(--safe-area-bottom))}
+        .chat-window-input input{flex:1;padding:9px 12px;background:var(--bg-primary);border:1px solid var(--border-color);color:#fff;font-family:var(--font-body);font-size:0.82rem;transition:border-color 0.3s}
+        .chat-window-input input:focus{outline:none;border-color:var(--accent)}
+        .chat-window-input button{padding:9px 14px;background:var(--accent);border:none;color:#000;font-weight:700;cursor:pointer;font-family:var(--font-heading);letter-spacing:2px;font-size:0.85rem;transition:background 0.3s;flex-shrink:0;min-width:44px}
+        .chat-window-input button:hover{background:var(--accent-light)}
+        .chat-window-input button svg{width:16px;height:16px;fill:none;stroke:#000;stroke-width:2.5}
+
+        @media(max-width:768px){
+            .container{padding:0 20px}
+            .header .container{flex-direction:row;gap:10px}
+            .logo{font-size:1.5rem;letter-spacing:3px;gap:8px}
+            .logo-img{width:32px;height:32px}
+            .contact-header a{font-size:0.85rem;padding:6px 10px;letter-spacing:0}
+            .main-content{padding-top:62px}
+            .hero{min-height:100vh}
+            .hero h1{font-size:clamp(2.8rem,12vw,4rem)}
+            .hero-typing{font-size:0.9rem;max-width:100%;min-height:auto;margin-bottom:24px;padding-left:16px}
+            .hero-buttons{flex-direction:column}
+            .hero-buttons .btn{width:100%}
+            .tachometer{display:none}
+            .hero-shadow{width:70vw}
+            .section{padding:50px 0}
+            .section-divider{height:30px}
+            .features-grid,.catalog-grid{grid-template-columns:1fr}
+            .products-grid{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;gap:1rem;padding-bottom:10px;scrollbar-width:none;grid-template-columns:none}
+            .products-grid::-webkit-scrollbar{display:none}
+            .products-grid .product-card{flex:0 0 85%;scroll-snap-align:start}
+            .products-scroll-indicator{display:flex;justify-content:center;gap:6px;margin-top:1rem}
+            .products-scroll-dot{width:8px;height:8px;border-radius:50%;background:var(--border-color);transition:all 0.3s ease}
+            .products-scroll-dot.active{background:var(--accent);box-shadow:0 0 8px var(--accent-glow);width:20px;border-radius:4px}
+            .product-detail-grid{grid-template-columns:1fr;gap:2rem}
+            .contact-grid{grid-template-columns:1fr}
+            .footer-grid{grid-template-columns:1fr;gap:1.5rem}
+            .brands-track span{font-size:1.4rem}
+            .brands-track{gap:1.5rem}
+            .calc-steps{flex-direction:column}
+            .lead-form{flex-direction:column}
+            .lead-form input{min-width:100%}
+            .chat-window{width:100%;right:0;bottom:0;height:100%;border-radius:0}
+            .chat-widget{bottom:90px;right:16px}
+            .scroll-to-top{bottom:90px;right:16px;width:40px;height:40px}
+            .scroll-to-top.chat-open{bottom:50%}
+            .sticky-cta{display:block}
+            .card-image-wrap{height:180px}
+            .calculator{padding:1.5rem}
+            .popup{padding:1.8rem}
+            .toast{font-size:0.75rem;padding:10px 16px}
+        }
+        @media(min-width:769px){.products-scroll-indicator{display:none}.sticky-cta{display:none}}
+    </style>
+</head>
+<body>
+
+    <canvas id="particlesCanvas"></canvas>
+
+    <header class="header" id="header">
+        <div class="container">
+            <div class="logo" onclick="goHome()"><img src="logo-nice.png" alt="NICE ENDURO" class="logo-img">NICE<span style="color:var(--accent);">ENDURO</span></div>
+            <div class="contact-header">
+                <a href="tel:+79954808808" id="headerPhone"><svg class="phone-icon" viewBox="0 0 24 24"><path d="M6.62 10.79a15.05 15.05 0 0 0 6.59 6.59l2.2-2.2a1 1 0 0 1 1.02-.24 11.5 11.5 0 0 0 3.6.58 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1 11.5 11.5 0 0 0 .58 3.6 1 1 0 0 1-.24 1.02l-2.22 2.17z"/></svg><span id="headerPhoneText">+7 (995) 4-808-808</span></a>
+            </div>
+        </div>
+    </header>
+
+    <div class="toast-container" id="toastContainer"></div>
+    <div class="sticky-cta" id="stickyCta"><a href="tel:+79954808808" class="btn" id="stickyPhone">📞 Позвонить</a></div>
+
+    <div class="main-content" id="mainContent">
+        <div class="page active" id="page-home">
+            <section class="hero" id="heroSection">
+                <video autoplay muted loop playsinline preload="none" class="hero-video" id="heroVideo" poster="hero-poster.jpg"><source src="hero-bg.mp4" type="video/mp4"></video>
+                <div class="hero-overlay"></div>
+                <div class="hero-shadow" id="heroShadow"></div>
+                <div class="hero-fog"></div>
+                <div class="tachometer" id="tachometer">
+                    <svg viewBox="0 0 200 200"><defs><linearGradient id="tachoGrad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="var(--accent)"/><stop offset="100%" stop-color="#FFF"/></linearGradient></defs><path d="M30 170 A90 90 0 0 1 170 170" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="12" stroke-linecap="round"/><path d="M30 170 A90 90 0 0 1 170 170" fill="none" stroke="url(#tachoGrad)" stroke-width="4" stroke-linecap="round" stroke-dasharray="220" stroke-dashoffset="60" id="tachoArc"/><line x1="100" y1="100" x2="100" y2="40" stroke="#fff" stroke-width="3" stroke-linecap="round" transform="rotate(-45, 100, 100)" id="tachoNeedle"/><circle cx="100" cy="100" r="8" fill="var(--accent)"/><text x="100" y="155" text-anchor="middle" fill="#fff" font-family="var(--font-heading)" font-size="14" letter-spacing="3">RPM</text></svg>
+                </div>
+                <div class="container"><div class="hero-content">
+                    <div class="hero-badge">ОФИЦИАЛЬНЫЙ ДИЛЕР</div>
+                    <h1>Испытай <span class="accent">предел</span></h1>
+                    <div class="hero-typing" id="heroTyping"></div>
+                    <div class="hero-buttons">
+                        <a href="#catalog" class="btn">Смотреть технику <svg class="icon" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                        <a href="#consult" class="btn btn-outline" onclick="openConsultPopup()">Консультация <svg class="icon" viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></a>
+                    </div>
+                </div></div>
+            </section>
+
+            <section class="section section-dark" id="features"><div class="container">
+                <div class="section-title-wrapper"><p class="subtitle">Почему NICE ENDURO</p><h2>4 причины</h2></div>
+                <div class="features-grid">
+                    <div class="feature-card reveal"><svg class="feature-icon icon-outline" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/></svg><h3>Точный подбор</h3><p>Анализируем опыт, рост и цели. Подбираем мотоцикл, который не разочарует.</p></div>
+                    <div class="feature-card reveal"><svg class="feature-icon icon-outline" viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.77 3.77z"/></svg><h3>Свой сервис</h3><p>Ремонт, тюнинг и ТО любой сложности. Работаем с гарантией.</p></div>
+                    <div class="feature-card reveal"><svg class="feature-icon icon-outline" viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg><h3>Доставка по РФ</h3><p>Отправляем технику и запчасти в любой регион с полной страховкой.</p></div>
+                    <div class="feature-card reveal"><svg class="feature-icon icon-outline" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg><h3>Полная экипировка</h3><p>Шлемы, защита, мотоботы. Всё для безопасной езды.</p></div>
+                </div>
+            </div></section>
+
+            <div class="section-divider"><div class="neon-line" id="neonLine1"></div></div>
+
+            <section class="section" id="catalog"><div class="container">
+                <div class="section-title-wrapper"><p class="subtitle">В наличии</p><h2>Категории</h2></div>
+                <div class="catalog-grid" id="catalogGrid">
+                    <div class="skeleton skeleton-card"></div><div class="skeleton skeleton-card"></div><div class="skeleton skeleton-card"></div><div class="skeleton skeleton-card"></div><div class="skeleton skeleton-card"></div>
+                </div>
+            </div></section>
+
+            <div class="section-divider reverse"><div class="neon-line" id="neonLine2"></div></div>
+
+            <section class="section"><div class="container">
+                <div class="section-title-wrapper"><p class="subtitle">Отзывы</p><h2>Реальные райдеры</h2></div>
+                <div class="reviews-grid">
+                    <div class="review-card reveal"><div class="review-stars">★★★★★</div><p class="review-text">«Взял Kayo 250. Ребята помогли с выбором, всё объяснили. Через неделю уже гонял по лесам.»</p><div class="review-author"><div class="review-author-avatar">Д</div><div><strong>Дмитрий</strong><small>Пермь</small></div></div></div>
+                    <div class="review-card reveal"><div class="review-stars">★★★★★</div><p class="review-text">«Доставили квадроцикл в Екатеринбург за 3 дня. Всё в идеале.»</p><div class="review-author"><div class="review-author-avatar">А</div><div><strong>Алексей</strong><small>Екатеринбург</small></div></div></div>
+                    <div class="review-card reveal"><div class="review-stars">★★★★★</div><p class="review-text">«Покупал экипировку. Качество на уровне, цены адекватные.»</p><div class="review-author"><div class="review-author-avatar">С</div><div><strong>Сергей</strong><small>Кунгур</small></div></div></div>
+                </div>
+            </div></section>
+
+            <section class="section section-dark" id="consult"><div class="container">
+                <div class="section-title-wrapper"><p class="subtitle">Не уверены в выборе?</p><h2>Подберем за 1 минуту</h2></div>
+                <div class="calculator reveal">
+                    <div class="calc-steps"><div class="calc-group"><label>Уровень</label><select id="level"><option value="">Выбрать</option><option>Новичок</option><option>Любитель</option><option>Профи</option></select></div><div class="calc-group"><label>Рост (см)</label><input type="number" id="height" placeholder="170-195"></div><div class="calc-group"><label>Тип</label><select id="type"><option value="">Выбрать</option><option>Эндуро</option><option>Питбайк</option><option>Квадроцикл</option></select></div><div class="calc-group"><button class="btn btn-sm" onclick="calculateBike()">Подобрать</button></div></div>
+                    <div class="calc-result" id="calcResult"><h3>Рекомендуем: <span id="bikeName"></span></h3><p id="bikeDesc"></p><a href="tel:+79954808808" class="btn btn-sm" id="calcPhone">Узнать цену и наличие</a></div>
+                </div>
+            </div></section>
+
+            <section class="brands-section">
+                <div class="brands-track"><span>XGZ</span><span>•</span><span>BRZ</span><span>•</span><span>PROGASI</span><span>•</span><span>HASKY</span><span>•</span><span>KAYO</span><span>•</span><span>GR</span><span>•</span><span>ROCKOT</span><span>•</span><span>REGULMOTO</span><span>•</span><span>NFX</span><span>•</span><span>KEWS</span><span>•</span><span>ATAKI</span><span>•</span><span>JHL</span><span>•</span><span>HTLD</span><span>•</span><span>FULLCREW</span><span>•</span><span>JMC</span><span>•</span><span>XGZ</span><span>•</span><span>BRZ</span><span>•</span><span>PROGASI</span><span>•</span><span>HASKY</span><span>•</span><span>KAYO</span><span>•</span><span>GR</span><span>•</span><span>ROCKOT</span><span>•</span><span>REGULMOTO</span><span>•</span><span>NFX</span><span>•</span><span>KEWS</span><span>•</span><span>ATAKI</span><span>•</span><span>JHL</span><span>•</span><span>HTLD</span><span>•</span><span>FULLCREW</span><span>•</span><span>JMC</span><span>•</span></div>
+            </section>
+
+            <section class="section" id="contact"><div class="container">
+                <div class="section-title-wrapper"><p class="subtitle">На связи</p><h2>Контакты</h2></div>
+                <div class="contact-grid">
+                    <div class="contact-info-block reveal">
+                        <div class="contact-item"><svg class="contact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg><div class="contact-text"><strong>Адрес</strong><span id="contactAddress">Пермский край, г. Кунгур, ул. Ст.Разина 48</span></div></div>
+                        <div class="contact-item"><svg class="contact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><div class="contact-text"><strong>Режим работы</strong><span id="contactHours">Пн-Пт: 10:00–19:00<br>Сб: 10:00–18:00 | Вс: 10:00–17:00</span></div></div>
+                        <div class="contact-item"><svg class="contact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6.62 10.79a15.05 15.05 0 0 0 6.59 6.59l2.2-2.2a1 1 0 0 1 1.02-.24 11.5 11.5 0 0 0 3.6.58 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1 11.5 11.5 0 0 0 .58 3.6 1 1 0 0 1-.24 1.02l-2.22 2.17z"/></svg><div class="contact-text"><strong>Телефон</strong><a href="tel:+79954808808" style="color:var(--accent);text-decoration:none;font-weight:700;" id="contactPhone">+7 (995) 4-808-808</a></div></div>
+                        <div class="lead-form"><input type="text" placeholder="Ваше имя" id="formName"><input type="tel" placeholder="+7 (___) ___-__-__" id="formPhone"><button class="btn btn-sm" id="leadFormBtn" onclick="submitLeadForm()">Заказать звонок</button></div>
+                    </div>
+                    <div class="reveal" id="mapWrapper"><div id="mapContainer"></div></div>
+                </div>
+            </div></section>
+
+            <footer class="footer"><div class="container"><div class="footer-grid"><div class="footer-col"><h4>NICE ENDURO</h4><p>Официальный дилер мототехники в Кунгуре.</p></div><div class="footer-col"><h4>Категории</h4><div id="footerCategories"><a onclick="navigateTo('moto')">Мототехника</a><a onclick="navigateTo('atv')">Квадроциклы</a><a onclick="navigateTo('tracks')">Гусеничные</a><a onclick="navigateTo('gear')">Экипировка</a><a onclick="navigateTo('parts')">Запчасти</a></div></div><div class="footer-col"><h4>Клиентам</h4><a href="#features">Преимущества</a><a href="#catalog">Каталог</a><a href="#consult">Подбор</a><a href="#contact">Контакты</a></div><div class="footer-col"><h4>Контакты</h4><p id="footerPhone">+7 (995) 4-808-808</p><p id="footerAddress">г. Кунгур, ул. Ст.Разина 48</p><p id="footerHours">Пн-Пт: 10:00–19:00</p></div></div><div class="footer-bottom">© 2024 NICE ENDURO. Все права защищены.</div></div></footer>
+        </div>
+
+        <div class="page" id="page-category">
+            <div class="container" id="categoryContent"></div>
+            <footer class="footer"><div class="container"><div class="footer-bottom"><a onclick="goHome()" style="color:var(--accent);cursor:pointer;text-decoration:none;font-weight:700;">← На главную</a> &nbsp;|&nbsp; © 2024 NICE ENDURO. Все права защищены.</div></div></footer>
+        </div>
+
+        <div class="page" id="page-product">
+            <div class="container" id="productContent"></div>
+            <footer class="footer"><div class="container"><div class="footer-bottom"><a onclick="goHome()" style="color:var(--accent);cursor:pointer;text-decoration:none;font-weight:700;">← На главную</a> &nbsp;|&nbsp; © 2024 NICE ENDURO. Все права защищены.</div></div></footer>
+        </div>
+    </div>
+
+    <div class="popup-overlay" id="popupOverlay"><div class="popup"><button class="popup-close" onclick="closeConsultPopup()">×</button><h2>Консультация</h2><p style="color:var(--text-secondary);margin-bottom:1.2rem;">Оставьте номер — перезвоним за 5 минут.</p><div class="lead-form" style="flex-direction:column;"><input type="text" placeholder="Ваше имя" id="popupName"><input type="tel" placeholder="+7 (___) ___-__-__" id="popupPhone"><button class="btn" style="width:100%;" id="popupBtn" onclick="submitPopupForm()">Отправить</button></div></div></div>
+    <div class="scroll-to-top" id="scrollToTop"><svg viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg></div>
+    <div class="chat-widget">
+        <div class="chat-bubble" onclick="toggleChat()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+        <div class="chat-window" id="chatWindow">
+            <div class="chat-window-header"><h3>Поддержка</h3><button onclick="toggleChat()">×</button></div>
+            <div class="chat-window-messages" id="chatMessages"><div class="cw-typing" id="cwTyping"><span></span><span></span><span></span> поддержка печатает...</div></div>
+            <div class="chat-window-input"><input type="text" placeholder="Сообщение..." id="chatInput" onkeypress="if(event.key==='Enter')sendChatMessage()"><button onclick="sendChatMessage()" title="Отправить"><svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button></div>
+        </div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://zrooftnesjmcaqjwojwi.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpyb29mdG5lc2ptY2FxandvandpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk2OTM5OTcsImV4cCI6MjA5NTI2OTk5N30.FNncL110petZQIy5COkYkArQtFq0yxszqI93lMri9YY';
+        const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        let chatTicketId = null, chatOpen = false, chatSubscription = null, statusSubscription = null, isInitializingChat = false;
+        let allCategories = [], allProducts = [], phoneNumber = '+79954808808';
+
+        // ============ УТИЛИТЫ ============
+        function escapeHtml(u) { return u.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;"); }
+        function showToast(m, e = false) {
+            const c = document.getElementById('toastContainer'), t = document.createElement('div');
+            t.className = 'toast' + (e ? ' error' : ''); t.textContent = m; c.appendChild(t);
+            requestAnimationFrame(() => t.classList.add('show'));
+            setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 400); }, 3000);
+        }
+        function validatePhone(p) { const d = p.replace(/\D/g,''); return d.length === 11 && (d.startsWith('7') || d.startsWith('8')); }
+        function formatPhone(i) {
+            let v = i.value.replace(/\D/g,''); if (v.startsWith('8')) v = '7'+v.slice(1);
+            if (!v.startsWith('7') && v.length > 0) v = '7'+v; if (v.length > 11) v = v.slice(0,11);
+            let f = '+7'; if (v.length > 1) f += ' ('+v.slice(1,4); if (v.length > 4) f += ') '+v.slice(4,7);
+            if (v.length > 7) f += '-'+v.slice(7,9); if (v.length > 9) f += '-'+v.slice(9,11); i.value = f;
+        }
+        document.querySelectorAll('input[type="tel"]').forEach(i => {
+            i.addEventListener('input', () => formatPhone(i));
+            i.addEventListener('focus', () => { if (!i.value) i.value = '+7 ('; });
+        });
+
+        // ============ ЗАГРУЗКА ДАННЫХ ИЗ SUPABASE ============
+        async function loadSiteData() {
+            const [catRes, prodRes, setRes] = await Promise.all([
+                sb.from('categories').select('*').order('created_at', { ascending: true }),
+                sb.from('products').select('*').order('created_at', { ascending: false }),
+                sb.from('settings').select('*').single()
+            ]);
+            allCategories = catRes.data || [];
+            allProducts = prodRes.data || [];
+            if (setRes.data) {
+                phoneNumber = setRes.data.phone || phoneNumber;
+                document.getElementById('headerPhoneText').textContent = formatPhoneDisplay(phoneNumber);
+                document.getElementById('headerPhone').href = 'tel:' + phoneNumber;
+                document.getElementById('stickyPhone').href = 'tel:' + phoneNumber;
+                document.getElementById('contactPhone').textContent = formatPhoneDisplay(phoneNumber);
+                document.getElementById('contactPhone').href = 'tel:' + phoneNumber;
+                document.getElementById('footerPhone').textContent = formatPhoneDisplay(phoneNumber);
+                document.getElementById('contactAddress').textContent = setRes.data.address || 'г. Кунгур, ул. Ст.Разина 48';
+                document.getElementById('footerAddress').textContent = setRes.data.address || 'г. Кунгур, ул. Ст.Разина 48';
+                const h1 = setRes.data.hours_weekdays || '10:00–19:00';
+                const h2 = setRes.data.hours_weekend || '10:00–17:00';
+                document.getElementById('contactHours').innerHTML = `Пн-Пт: ${h1}<br>Сб-Вс: ${h2}`;
+                document.getElementById('footerHours').textContent = `Пн-Пт: ${h1}`;
+                if (setRes.data.yandex_map_id) {
+                    document.getElementById('mapContainer').innerHTML = `<iframe src="https://yandex.ru/map-widget/v1/?um=constructor%3A${setRes.data.yandex_map_id}&source=constructor" width="100%" height="100%" style="border:0;min-height:380px;" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>`;
+                }
+                document.getElementById('calcPhone').href = 'tel:' + phoneNumber;
+            }
+            renderCatalog();
+            renderFooterCategories();
+        }
+        function formatPhoneDisplay(p) { const d = p.replace(/\D/g,''); if (d.length === 11) return '+'+d[0]+' ('+d.slice(1,4)+') '+d.slice(4,7)+'-'+d.slice(7,9)+'-'+d.slice(9,11); return p; }
+        function renderCatalog() {
+            const grid = document.getElementById('catalogGrid');
+            if (allCategories.length === 0) { grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1;"><p>Категории скоро появятся</p></div>'; return; }
+            grid.innerHTML = allCategories.map(c => `
+                <div class="catalog-card reveal" onclick="navigateTo('${c.slug}')">
+                    <div class="card-image-wrap"><img src="${c.image||c.slug+'.png'}" alt="${escapeHtml(c.title)}" loading="lazy" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22260%22 height=%22240%22%3E%3Crect fill=%22%23111118%22 width=%22260%22 height=%22240%22/%3E%3Ctext fill=%22%23555%22 x=%22130%22 y=%22125%22 text-anchor=%22middle%22 font-family=%22sans-serif%22%3E${escapeHtml(c.title)}%3C/text%3E%3C/svg%3E'"></div>
+                    <div class="card-content"><h3>${escapeHtml(c.title)}</h3><p>${escapeHtml(c.desc||'')}</p><span class="card-link-text">Смотреть <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div>
+                </div>`).join('');
+            observeReveal();
+        }
+        function renderFooterCategories() {
+            const fc = document.getElementById('footerCategories');
+            if (allCategories.length === 0) return;
+            fc.innerHTML = allCategories.map(c => `<a onclick="navigateTo('${c.slug}')">${escapeHtml(c.title)}</a>`).join('');
+        }
+
+        // ============ ЧАСТИЦЫ ============
+        (function() {
+            const canvas = document.getElementById('particlesCanvas'), ctx = canvas.getContext('2d');
+            let particles = [], w, h, animId, pageVisible = true;
+            const MAX = 25;
+            function resize() { w = canvas.width = window.innerWidth; h = canvas.height = window.innerHeight; }
+            function create() { particles = []; for (let i = 0; i < MAX; i++) particles.push({ x: Math.random()*w, y: Math.random()*h, r: Math.random()*1.5+0.5, vx: (Math.random()-0.5)*0.3, vy: -(Math.random()*0.5+0.2), o: Math.random()*0.5+0.1, life: Math.random()*300+100, maxLife: 400 }); }
+            function draw() { if (!pageVisible) { animId = requestAnimationFrame(draw); return; } ctx.clearRect(0,0,w,h); for (let i = particles.length-1; i >= 0; i--) { const p = particles[i]; p.x += p.vx; p.y += p.vy; p.life--; const alpha = p.o * (p.life/p.maxLife); ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2); ctx.fillStyle = `rgba(232,196,65,${alpha})`; ctx.fill(); if (p.life <= 0 || p.y < -10) { p.x = Math.random()*w; p.y = h+10; p.life = p.maxLife; } } animId = requestAnimationFrame(draw); }
+            resize(); create(); draw();
+            window.addEventListener('resize', () => { resize(); create(); });
+            document.addEventListener('visibilitychange', () => { pageVisible = !document.hidden; });
+        })();
+
+        // ============ ПЕЧАТНАЯ МАШИНКА ============
+        (function() {
+            const el = document.getElementById('heroTyping'), phrases = [
+                'Официальный дилер эндуро, питбайков и квадроциклов в Кунгуре. Подбор, сервис, доставка.',
+                'Точный подбор мотоцикла под ваш рост, опыт и цели.',
+                'Доставка по всей России с полной страховкой.'
+            ];
+            let pi = 0, ci = 0, isDeleting = false, timeout, running = true;
+            function tick() { if (!running) return; const full = phrases[pi]; if (!isDeleting) { el.innerHTML = full.substring(0, ci) + '<span class="cursor"></span>'; ci++; if (ci > full.length) { timeout = setTimeout(tick, 2000); isDeleting = true; return; } timeout = setTimeout(tick, 40 + Math.random()*40); } else { el.innerHTML = full.substring(0, ci) + '<span class="cursor"></span>'; ci--; if (ci < 0) { isDeleting = false; pi = (pi+1)%phrases.length; timeout = setTimeout(tick, 300); return; } timeout = setTimeout(tick, 20); } }
+            tick();
+            const obs = new IntersectionObserver((e) => { running = e[0].isIntersecting; if (running && !timeout) tick(); });
+            if (el) obs.observe(el);
+        })();
+
+        // ============ СПИДОМЕТР ============
+        (function() {
+            const needle = document.getElementById('tachoNeedle'), arc = document.getElementById('tachoArc');
+            if (!needle || !arc) return;
+            let angle = -45, target = 45, animId, intervalId, visible = true;
+            function animate() { if (!visible) return; angle += (target - angle) * 0.03; needle.setAttribute('transform', `rotate(${angle}, 100, 100)`); const offset = 220 - ((angle+45)/90)*160; arc.setAttribute('stroke-dashoffset', offset); if (Math.abs(target-angle) > 0.1) animId = requestAnimationFrame(animate); else animId = null; }
+            function pulse() { if (visible) { target = target === 45 ? -20 : 45; if (!animId) animId = requestAnimationFrame(animate); } }
+            intervalId = setInterval(pulse, 3000); animId = requestAnimationFrame(animate);
+            const obs = new IntersectionObserver((e) => { visible = e[0].isIntersecting; if (visible && !animId) animId = requestAnimationFrame(animate); });
+            const el = document.getElementById('tachometer'); if (el) obs.observe(el);
+        })();
+
+        // ============ SCROLL ============
+        let ticking = false;
+        const header = document.getElementById('header'), scrollBtn = document.getElementById('scrollToTop'),
+              heroVideo = document.getElementById('heroVideo'), heroSection = document.getElementById('heroSection'),
+              heroShadow = document.getElementById('heroShadow');
+        window.addEventListener('scroll', () => {
+            if (!ticking) { requestAnimationFrame(() => { const sy = window.scrollY; if (sy > 50) { header.classList.add('scrolled'); scrollBtn.classList.add('visible'); } else { header.classList.remove('scrolled'); scrollBtn.classList.remove('visible'); } if (heroVideo && heroSection) { const hh = heroSection.offsetHeight; if (sy < hh) heroVideo.style.transform = `translate(-50%, calc(-50% + ${sy*0.3}px))`; } if (heroShadow && heroSection) { const hh = heroSection.offsetHeight; if (sy < hh) heroShadow.style.transform = `translateX(-50%) translateY(${sy*0.15}px)`; } ticking = false; }); ticking = true; }
+        });
+        scrollBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+        document.addEventListener('visibilitychange', () => { if (heroVideo) document.hidden ? heroVideo.pause() : heroVideo.play().catch(()=>{}); });
+
+        // ============ REVEAL / NEON ============
+        const revealObserver = new IntersectionObserver((e) => { e.forEach(en => { if (en.isIntersecting) { en.target.classList.add('visible'); revealObserver.unobserve(en.target); } }); }, { threshold: 0.15, rootMargin: '0px 0px -30px 0px' });
+        function observeReveal() { document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el)); }
+        observeReveal();
+        const neonObserver = new IntersectionObserver((e) => { e.forEach(en => { if (en.isIntersecting) { en.target.classList.add('visible'); neonObserver.unobserve(en.target); } }); }, { threshold: 0.5 });
+        document.querySelectorAll('.neon-line').forEach(l => neonObserver.observe(l));
+
+        // ============ МОБИЛЬНЫЙ СКРОЛЛ ============
+        function setupMobileScroll() {
+            if (window.innerWidth > 768) return;
+            document.querySelectorAll('.products-grid').forEach(grid => {
+                let indicator = grid.parentElement.querySelector('.products-scroll-indicator');
+                if (!indicator) { indicator = document.createElement('div'); indicator.className = 'products-scroll-indicator'; grid.parentElement.appendChild(indicator); }
+                const update = () => { const cards = grid.querySelectorAll('.product-card'); const cardW = cards[0]?.offsetWidth || 280; const si = Math.round(grid.scrollLeft / (cardW + 16)); indicator.querySelectorAll('.products-scroll-dot').forEach((d, i) => d.classList.toggle('active', i === si)); };
+                grid.removeEventListener('scroll', update); grid.addEventListener('scroll', update, { passive: true });
+                const cards = grid.querySelectorAll('.product-card');
+                indicator.innerHTML = ''; cards.forEach((_, i) => { const d = document.createElement('div'); d.className = 'products-scroll-dot'; if (i===0) d.classList.add('active'); indicator.appendChild(d); });
+            });
+        }
+        window.addEventListener('resize', setupMobileScroll);
+
+        // ============ ПОПАП ============
+        function openConsultPopup() { document.getElementById('popupOverlay').classList.add('active'); }
+        function closeConsultPopup() { document.getElementById('popupOverlay').classList.remove('active'); }
+        document.getElementById('popupOverlay').addEventListener('click', function(e) { if (e.target === this) closeConsultPopup(); });
+
+        // ============ ФОРМЫ ============
+        async function submitLeadForm() {
+            const btn = document.getElementById('leadFormBtn'), n = document.getElementById('formName').value.trim(),
+                  p = document.getElementById('formPhone').value.trim(), pi = document.getElementById('formPhone');
+            if (!n) { showToast('Введите имя', true); return; }
+            if (!validatePhone(p)) { showToast('Введите корректный номер', true); pi.classList.add('error'); return; }
+            pi.classList.remove('error'); btn.disabled = true; btn.textContent = 'Отправляю...';
+            const { error } = await sb.from('requests').insert({ id: Date.now(), name: n, phone: p, type: 'call', status: 'new' });
+            btn.disabled = false; btn.textContent = 'Заказать звонок';
+            if (error) { showToast('Ошибка отправки', true); return; }
+            showToast('Заявка отправлена!'); document.getElementById('formName').value = ''; document.getElementById('formPhone').value = '';
+        }
+        async function submitPopupForm() {
+            const btn = document.getElementById('popupBtn'), n = document.getElementById('popupName').value.trim(),
+                  p = document.getElementById('popupPhone').value.trim(), pi = document.getElementById('popupPhone');
+            if (!n) { showToast('Введите имя', true); return; }
+            if (!validatePhone(p)) { showToast('Введите корректный номер', true); pi.classList.add('error'); return; }
+            pi.classList.remove('error'); btn.disabled = true; btn.textContent = 'Отправляю...';
+            const { error } = await sb.from('requests').insert({ id: Date.now(), name: n, phone: p, type: 'consultation', status: 'new' });
+            btn.disabled = false; btn.textContent = 'Отправить';
+            if (error) { showToast('Ошибка отправки', true); return; }
+            showToast('Заявка отправлена!'); closeConsultPopup();
+        }
+
+        // ============ ЧАТ ============
+        function toggleChat() {
+            chatOpen = !chatOpen; document.getElementById('chatWindow').classList.toggle('open', chatOpen);
+            if (window.innerWidth <= 768) { scrollBtn.classList.toggle('chat-open', chatOpen); document.getElementById('stickyCta').style.display = chatOpen ? 'none' : 'block'; }
+            if (chatOpen) initChat();
+        }
+        async function initChat() { if (isInitializingChat || chatTicketId) return; isInitializingChat = true; const id = Date.now(); const { error } = await sb.from('tickets').insert({ id, name: 'Посетитель сайта', status: 'open' }); if (!error) { chatTicketId = id; await sb.from('messages').insert({ id: Date.now(), ticket_id: id, sender: 'client', text: 'Здравствуйте, нужна помощь.' }); subscribeToChat(); subscribeToTicketStatus(); loadChatMessages(); } isInitializingChat = false; }
+        async function loadChatMessages() { if (!chatTicketId) return; const { data } = await sb.from('messages').select('*').eq('ticket_id', chatTicketId).order('created_at', { ascending: true }); const c = document.getElementById('chatMessages'); if (!data) return; const typing = document.getElementById('cwTyping'); c.innerHTML = data.map(m => `<div class="cw-msg ${m.sender}"><div>${escapeHtml(m.text)}</div><div class="cw-time">${new Date(m.created_at).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})}</div></div>`).join(''); if (typing) c.appendChild(typing); c.scrollTop = c.scrollHeight; }
+        function subscribeToChat() { if (chatSubscription) sb.removeChannel(chatSubscription); chatSubscription = sb.channel('chat-'+chatTicketId).on('postgres_changes',{event:'INSERT',schema:'public',table:'messages',filter:`ticket_id=eq.${chatTicketId}`},()=>{loadChatMessages();document.getElementById('cwTyping')?.classList.remove('show');}).subscribe(); }
+        function subscribeToTicketStatus() { if (statusSubscription) sb.removeChannel(statusSubscription); statusSubscription = sb.channel('ticket-status-'+chatTicketId).on('postgres_changes',{event:'UPDATE',schema:'public',table:'tickets',filter:`id=eq.${chatTicketId}`},(p)=>{if(p.new.status==='closed'){const c=document.getElementById('chatMessages'),m=document.createElement('div');m.className='cw-system';m.textContent='Тикет закрыт поддержкой';c.appendChild(m);c.scrollTop=c.scrollHeight;document.getElementById('chatInput').disabled=true;document.getElementById('chatInput').placeholder='Тикет закрыт';if(chatSubscription)sb.removeChannel(chatSubscription);if(statusSubscription)sb.removeChannel(statusSubscription);}}).subscribe(); }
+        async function sendChatMessage() { const i=document.getElementById('chatInput'),t=i.value.trim();if(!t||!chatTicketId)return;await sb.from('messages').insert({id:Date.now(),ticket_id:chatTicketId,sender:'client',text:t});i.value='';document.getElementById('cwTyping')?.classList.add('show'); }
+
+        // ============ НАВИГАЦИЯ ============
+        function hideAllPages() { document.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); }
+        function goHome() { hideAllPages(); document.getElementById('page-home').classList.add('active'); window.scrollTo({top:0,behavior:'smooth'}); observeReveal(); }
+        function navigateTo(slug) {
+            const cat = allCategories.find(c => c.slug === slug);
+            if (!cat) return goHome();
+            document.getElementById('categoryContent').innerHTML = `<div class="category-hero"><div class="skeleton skeleton-title"></div><div class="skeleton skeleton-text"></div></div><div class="products-grid">${Array(4).fill('<div class="skeleton skeleton-card"></div>').join('')}</div>`;
+            hideAllPages(); document.getElementById('page-category').classList.add('active'); window.scrollTo({top:0,behavior:'instant'});
+            setTimeout(() => {
+                const catProducts = allProducts.filter(p => p.category === slug);
+                document.getElementById('categoryContent').innerHTML = `
+                    <div class="category-hero"><div class="breadcrumbs"><a onclick="goHome()">Главная</a><span>/</span><span>${escapeHtml(cat.title)}</span></div><button class="btn btn-back" onclick="goHome()"><svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2"><polyline points="15 18 9 12 15 6"/></svg>На главную</button><h1>${escapeHtml(cat.title)}</h1><p class="cat-desc">${escapeHtml(cat.desc||'')}</p></div>
+                    <div class="products-grid">${catProducts.map(p=>`<div class="product-card reveal" onclick="openProduct('${slug}','${p.id}')"><div class="product-card-image"><img src="${p.image||''}" alt="${escapeHtml(p.name)}" loading="lazy" onerror="this.style.display='none'"><span class="stock-tag ${p.available?'in-stock':'order'}">${p.available?'В наличии':'Под заказ'}</span></div><div class="product-card-body"><h3>${escapeHtml(p.name)}</h3><div class="specs-row">${(p.specs||'').split(',').map(s=>`<span>${escapeHtml(s.trim())}</span>`).join('')}</div><div class="product-card-footer"><span class="price">${p.price||''}</span><span class="arrow"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div></div>`).join('')}</div>
+                    <div style="text-align:center;padding:30px 0 60px;"><p style="color:var(--text-muted);margin-bottom:12px;">Не нашли что искали?</p><a href="tel:${phoneNumber}" class="btn btn-sm">Позвонить</a></div>`;
+                observeReveal(); setupMobileScroll();
+            }, 300);
+        }
+        function openProduct(slug, pid) {
+            const p = allProducts.find(x => x.id == pid);
+            if (!p) return navigateTo(slug);
+            document.getElementById('productContent').innerHTML = `<div class="product-detail"><div class="skeleton skeleton-title"></div><div class="skeleton skeleton-text"></div></div>`;
+            hideAllPages(); document.getElementById('page-product').classList.add('active'); window.scrollTo({top:0,behavior:'instant'});
+            setTimeout(() => {
+                const related = allProducts.filter(x => x.category === slug && x.id != pid).slice(0, 3);
+                const specsArr = (p.specs||'').split(',').filter(s => s.trim());
+                let specsRows = specsArr.map(s => `<tr><td>${escapeHtml(s.trim())}</td><td>—</td></tr>`).join('');
+                if (p.desc) specsRows += `<tr><td>Описание</td><td>${escapeHtml(p.desc.substring(0,100))}...</td></tr>`;
+                let rh = '';
+                if (related.length > 0) rh = `<div class="related-products"><h2>Похожие товары</h2><div class="related-grid">${related.map(rp => `<div class="product-card reveal" onclick="openProduct('${slug}','${rp.id}')"><div class="product-card-image"><img src="${rp.image||''}" alt="${escapeHtml(rp.name)}" loading="lazy" onerror="this.style.display='none'"></div><div class="product-card-body"><h3>${escapeHtml(rp.name)}</h3><div class="product-card-footer"><span class="price">${rp.price||''}</span></div></div></div>`).join('')}</div></div>`;
+                document.getElementById('productContent').innerHTML = `
+                    <div class="product-detail"><div class="breadcrumbs"><a onclick="goHome()">Главная</a><span>/</span><a onclick="navigateTo('${slug}')">${escapeHtml(allCategories.find(c=>c.slug===slug)?.title||slug)}</a><span>/</span><span>${escapeHtml(p.name)}</span></div><button class="btn btn-back" onclick="navigateTo('${slug}')"><svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2"><polyline points="15 18 9 12 15 6"/></svg>Назад к категории</button>
+                    <div class="product-detail-grid"><div class="product-detail-image"><img src="${p.image||''}" alt="${escapeHtml(p.name)}" onerror="this.style.display='none'"><span class="detail-badge">${escapeHtml(specsArr[0]||'')}</span></div><div class="product-detail-info"><h1>${escapeHtml(p.name)}</h1><div class="detail-price">${p.price||''}</div><table class="detail-specs-table">${specsRows||'<tr><td colspan="2">Характеристики уточняются</td></tr>'}</table><a href="tel:${phoneNumber}" class="btn" style="width:100%;">Позвонить и заказать</a></div></div>
+                    <div class="product-detail-description"><h2>Описание</h2><p>${escapeHtml(p.desc||'Подробная информация уточняется у менеджера.')}</p></div><div class="detail-cta"><h3>Заинтересовал ${escapeHtml(p.name)}?</h3><p>Позвоните — расскажем о наличии и специальных условиях.</p><a href="tel:${phoneNumber}" class="btn">${formatPhoneDisplay(phoneNumber)}</a></div>${rh}</div>`;
+                observeReveal();
+            }, 300);
+        }
+
+        function calculateBike() {
+            const l = document.getElementById('level').value, h = document.getElementById('height').value, t = document.getElementById('type').value,
+                  r = document.getElementById('calcResult'), n = document.getElementById('bikeName'), d = document.getElementById('bikeDesc');
+            if (!l || !h || !t) { r.classList.add('show'); n.textContent = 'заполните все поля'; d.textContent = ''; return; }
+            r.classList.add('show');
+            t === 'Эндуро' ? (n.textContent = 'Kayo 250', d.textContent = 'Идеальный старт для роста ' + h + ' см.') :
+            t === 'Питбайк' ? (n.textContent = 'BRZ 190', d.textContent = 'Маневренный питбайк.') :
+            (n.textContent = 'Progasi 300', d.textContent = 'Мощный квадроцикл.');
+        }
+
+        // ============ ЗАПУСК ============
+        loadSiteData();
+    </script>
+</body>
+</html>
