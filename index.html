@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NICE ENDURO | Мототехника в Кунгуре — Официальный дилер</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root {
+            --bg-primary: #030305; --bg-secondary: #0A0A0F; --bg-card: #111118;
+            --accent: #E8C441; --accent-light: #F5DC70; --accent-dark: #B89920;
+            --accent-glow: rgba(232, 196, 65, 0.6); --gold: #E8C441;
+            --text-primary: #FAFAFC; --text-secondary: #A0A0A8; --text-muted: #5A5A64;
+            --border-color: #1C1C26; --border-light: #282834;
+            --font-heading: 'Bebas Neue', 'Arial Narrow', 'Impact', sans-serif;
+            --font-body: 'Inter', sans-serif;
+            --radius: 2px;
+            --shadow-card: 0 4px 20px rgba(0,0,0,0.4);
+            --shadow-hover: 0 12px 35px rgba(0,0,0,0.6), 0 0 30px rgba(232,196,65,0.15);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; background: var(--bg-primary); }
+        body { background-color: var(--bg-primary); color: var(--text-primary); font-family: var(--font-body); line-height: 1.6; overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+        body::-webkit-scrollbar { width: 4px; }
+        body::-webkit-scrollbar-track { background: transparent; }
+        body::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 2px; }
+        .container { max-width: 1300px; margin: 0 auto; padding: 0 30px; position: relative; z-index: 2; }
+        h1, h2, h3 { font-family: var(--font-heading); letter-spacing: 2px; text-transform: uppercase; font-weight: 400; }
+        h2 { font-size: clamp(3rem, 8vw, 5.5rem); line-height: 0.9; margin-bottom: 1.5rem; color: #FFFFFF; }
+        .section-title-wrapper { margin-bottom: 3rem; }
+        .section-title-wrapper .subtitle { font-family: var(--font-body); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 6px; color: var(--accent); margin-bottom: 0.8rem; font-weight: 700; display: flex; align-items: center; gap: 15px; }
+        .section-title-wrapper .subtitle::before { content: ''; display: block; width: 50px; height: 3px; background: var(--accent); box-shadow: 0 0 15px var(--accent-glow); border-radius: 2px; }
+        .btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; padding: 16px 38px; font-family: var(--font-heading); font-size: 1.2rem; letter-spacing: 3px; text-decoration: none; text-transform: uppercase; transition: all 0.35s ease; cursor: pointer; border: none; position: relative; overflow: hidden; z-index: 1; background: var(--accent); color: #000; font-weight: 700; }
+        .btn:hover { background: var(--accent-light); transform: translateY(-3px); box-shadow: 0 0 35px var(--accent-glow); }
+        .btn:active { transform: translateY(0); }
+        .btn-outline { background: transparent; color: var(--accent); box-shadow: inset 0 0 0 2px rgba(232,196,65,0.4); }
+        .btn-outline:hover { background: var(--accent); color: #000; box-shadow: 0 0 35px var(--accent-glow); }
+        .btn-sm { padding: 12px 24px; font-size: 1rem; letter-spacing: 2px; }
+        .btn-back { background: transparent; box-shadow: inset 0 0 0 1px var(--border-color); color: var(--text-secondary); padding: 10px 22px; font-size: 1rem; gap: 8px; display: inline-flex; align-items: center; border: none; }
+        .btn-back:hover { box-shadow: inset 0 0 0 1px var(--accent); color: var(--accent); background: rgba(232,196,65,0.05); transform: translateX(-5px); }
+        .icon { display: inline-block; width: 1em; height: 1em; fill: currentColor; vertical-align: middle; }
+        .icon-outline { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+        .header { padding: 12px 0; background: rgba(3,3,5,0.85); backdrop-filter: blur(25px) saturate(180%); -webkit-backdrop-filter: blur(25px) saturate(180%); position: fixed; width: 100%; top: 0; z-index: 1000; border-bottom: 1px solid rgba(255,255,255,0.04); transition: all 0.4s ease; }
+        .header.scrolled { background: rgba(3,3,5,0.98); box-shadow: 0 8px 30px rgba(0,0,0,0.7); padding: 8px 0; }
+        .header .container { display: flex; justify-content: space-between; align-items: center; }
+        .logo { display: flex; align-items: center; gap: 14px; font-family: var(--font-heading); font-size: 2rem; letter-spacing: 6px; color: #fff; cursor: pointer; transition: transform 0.2s ease; text-transform: uppercase; }
+        .logo:hover { transform: scale(1.03); }
+        .logo-img { width: 44px; height: 44px; object-fit: contain; }
+        .contact-header a { color: var(--text-primary); text-decoration: none; font-weight: 700; font-size: 1.1rem; letter-spacing: 1px; transition: all 0.2s ease; display: flex; align-items: center; gap: 8px; padding: 8px 16px; border: 1px solid rgba(255,255,255,0.08); }
+        .contact-header a:hover { color: #fff; border-color: var(--accent); background: rgba(232,196,65,0.08); box-shadow: 0 0 20px rgba(232,196,65,0.15); }
+        .contact-header .phone-icon { width: 16px; height: 16px; fill: none; stroke: var(--accent); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+        .main-content { padding-top: 76px; min-height: 100vh; }
+        .page { display: none; }
+        .page.active { display: block; animation: pageIn 0.4s ease; }
+        @keyframes pageIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+        .hero { height: 100vh; min-height: 650px; display: flex; align-items: center; position: relative; overflow: hidden; background: var(--bg-primary); }
+        .hero-video { position: absolute; top: 50%; left: 50%; min-width: 100%; min-height: 100%; width: auto; height: auto; transform: translate(-50%,-50%); z-index: 0; object-fit: cover; }
+        .hero-overlay { position: absolute; inset: 0; z-index: 1; background: radial-gradient(ellipse at 30% 50%, rgba(3,3,5,0.2) 0%, rgba(3,3,5,0.95) 80%); }
+        .hero-content { position: relative; z-index: 3; max-width: 750px; }
+        .hero-badge { display: inline-flex; align-items: center; gap: 10px; background: rgba(232,196,65,0.1); border: 1px solid rgba(232,196,65,0.25); padding: 8px 20px; font-size: 0.8rem; letter-spacing: 4px; color: var(--accent); margin-bottom: 2rem; animation: fadeInUp 0.8s ease; }
+        .hero-badge::before { content: ''; width: 8px; height: 8px; background: var(--accent); border-radius: 50%; animation: blink 1.5s infinite; }
+        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+        .hero h1 { font-size: clamp(5rem, 11vw, 8rem); line-height: 0.85; margin-bottom: 20px; color: #FFFFFF; animation: fadeInUp 0.8s ease 0.2s both; }
+        .hero h1 .accent { color: var(--accent); display: block; font-size: 0.7em; }
+        .hero p { font-size: 1.2rem; color: #D1D1D6; margin-bottom: 40px; max-width: 500px; font-weight: 400; border-left: 4px solid var(--accent); padding-left: 25px; animation: fadeInUp 0.8s ease 0.4s both; }
+        .hero-buttons { display: flex; gap: 16px; flex-wrap: wrap; animation: fadeInUp 0.8s ease 0.6s both; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
+        .section-divider { position: relative; height: 60px; overflow: hidden; }
+        .section-divider::before { content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 100%; background: var(--bg-secondary); clip-path: polygon(0 100%, 100% 100%, 100% 25%, 0 65%); }
+        .section-divider.reverse::before { clip-path: polygon(0 100%, 100% 100%, 100% 65%, 0 25%); }
+        .section { padding: 80px 0; position: relative; }
+        .section-dark { background: var(--bg-secondary); }
+        .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem; margin-top: 2rem; }
+        .feature-card { background: var(--bg-card); border: 1px solid var(--border-color); padding: 2.5rem 2rem; transition: all 0.4s ease; position: relative; overflow: hidden; z-index: 1; }
+        .feature-card::after { content: ''; position: absolute; top: -50%; right: -50%; width: 200px; height: 200px; background: radial-gradient(circle, rgba(232,196,65,0.06) 0%, transparent 70%); pointer-events: none; transition: opacity 0.4s; opacity: 0; }
+        .feature-card:hover { border-color: var(--accent); transform: translateY(-8px); box-shadow: var(--shadow-hover); }
+        .feature-card:hover::after { opacity: 1; }
+        .feature-icon { width: 48px; height: 48px; margin-bottom: 1.2rem; color: var(--accent); transition: all 0.3s ease; }
+        .feature-card:hover .feature-icon { transform: scale(1.1); filter: drop-shadow(0 0 15px var(--accent-glow)); }
+        .feature-card h3 { font-size: 1.8rem; margin-bottom: 0.8rem; color: #fff; }
+        .feature-card p { color: var(--text-secondary); font-size: 0.95rem; line-height: 1.6; }
+        .catalog-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem; margin-top: 2rem; }
+        .catalog-card { background: var(--bg-card); border: 1px solid var(--border-color); overflow: hidden; transition: all 0.4s ease; cursor: pointer; position: relative; }
+        .catalog-card:hover { transform: translateY(-10px); box-shadow: var(--shadow-hover); border-color: var(--accent); }
+        .card-image-wrap { position: relative; overflow: hidden; height: 240px; background: var(--bg-card); }
+        .card-image-wrap img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(20%) contrast(1.1); transition: all 0.6s ease; }
+        .catalog-card:hover .card-image-wrap img { filter: grayscale(0%) contrast(1.05); transform: scale(1.05); }
+        .card-image-wrap::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to top, var(--bg-card) 0%, transparent 35%); }
+        .card-content { padding: 1.3rem; position: relative; z-index: 2; }
+        .card-content h3 { font-size: 2rem; margin-bottom: 0.3rem; display: flex; align-items: center; gap: 10px; transition: color 0.3s; }
+        .card-content h3 svg { width: 26px; height: 26px; fill: var(--accent); }
+        .catalog-card:hover .card-content h3 { color: var(--accent); }
+        .card-content p { color: var(--text-secondary); margin-bottom: 0.8rem; font-size: 0.9rem; }
+        .card-link-text { font-family: var(--font-heading); color: var(--accent); font-size: 1rem; letter-spacing: 2px; display: inline-flex; align-items: center; gap: 6px; transition: gap 0.3s; }
+        .catalog-card:hover .card-link-text { gap: 12px; }
+        .card-link-text svg { width: 16px; height: 16px; fill: currentColor; }
+        .category-hero { padding: 50px 0 35px; margin-bottom: 2rem; border-bottom: 2px solid var(--border-color); position: relative; }
+        .category-hero::after { content: ''; position: absolute; bottom: -2px; left: 0; width: 80px; height: 2px; background: var(--accent); box-shadow: 0 0 15px var(--accent-glow); }
+        .category-hero h1 { font-size: clamp(2.8rem, 6vw, 4rem); margin-bottom: 0.5rem; }
+        .category-hero .cat-desc { color: var(--text-secondary); font-size: 0.95rem; max-width: 550px; line-height: 1.7; }
+        .breadcrumbs { display: flex; gap: 8px; align-items: center; margin-bottom: 1.2rem; font-size: 0.8rem; color: var(--text-muted); flex-wrap: wrap; }
+        .breadcrumbs a { color: var(--accent); text-decoration: none; cursor: pointer; transition: color 0.3s; font-weight: 600; }
+        .breadcrumbs a:hover { color: #fff; }
+        .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.2rem; }
+        .product-card { background: var(--bg-card); border: 1px solid var(--border-color); transition: all 0.4s ease; cursor: pointer; overflow: hidden; }
+        .product-card:hover { border-color: var(--accent); transform: translateY(-5px); box-shadow: var(--shadow-card); }
+        .product-card-image { width: 100%; height: 180px; overflow: hidden; position: relative; }
+        .product-card-image img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; filter: brightness(0.9); }
+        .product-card:hover .product-card-image img { transform: scale(1.04); filter: brightness(1); }
+        .product-card-image .stock-tag { position: absolute; top: 10px; right: 10px; padding: 4px 10px; font-size: 0.65rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
+        .product-card-image .stock-tag.in-stock { background: rgba(76,175,80,0.2); color: #4CAF50; border: 1px solid rgba(76,175,80,0.3); }
+        .product-card-image .stock-tag.order { background: rgba(232,196,65,0.2); color: var(--accent); border: 1px solid rgba(232,196,65,0.3); }
+        .product-card-body { padding: 1.2rem; }
+        .product-card-body h3 { font-size: 1.6rem; margin-bottom: 0.6rem; color: #fff; }
+        .product-card-body .specs-row { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 1rem; }
+        .product-card-body .specs-row span { font-size: 0.75rem; color: var(--text-muted); padding: 3px 8px; background: rgba(255,255,255,0.02); border: 1px solid var(--border-color); }
+        .product-card-footer { display: flex; align-items: center; justify-content: space-between; padding-top: 0.8rem; border-top: 1px solid var(--border-color); }
+        .product-card-footer .price { font-family: var(--font-heading); font-size: 1.8rem; color: var(--accent); letter-spacing: 1px; }
+        .product-card-footer .arrow { color: var(--accent); transition: transform 0.3s; }
+        .product-card:hover .product-card-footer .arrow { transform: translateX(4px); }
+        .product-detail { padding: 30px 0 50px; }
+        .product-detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; margin-bottom: 3rem; }
+        .product-detail-image { position: relative; background: var(--bg-card); border: 1px solid var(--border-color); overflow: hidden; aspect-ratio: 4/3; }
+        .product-detail-image img { width: 100%; height: 100%; object-fit: cover; }
+        .product-detail-image .detail-badge { position: absolute; top: 15px; left: 15px; background: rgba(0,0,0,0.9); color: var(--accent); font-family: var(--font-heading); font-size: 0.9rem; padding: 5px 14px; letter-spacing: 2px; border: 1px solid rgba(232,196,65,0.4); }
+        .product-detail-info h1 { font-size: clamp(2.5rem, 5vw, 4rem); margin-bottom: 0.8rem; line-height: 1; }
+        .product-detail-info .detail-price { font-family: var(--font-heading); font-size: 2.5rem; color: var(--accent); letter-spacing: 2px; margin-bottom: 0.8rem; }
+        .detail-specs-table { width: 100%; border-collapse: collapse; margin-bottom: 1.5rem; }
+        .detail-specs-table tr { border-bottom: 1px solid var(--border-color); }
+        .detail-specs-table td { padding: 10px 0; font-size: 0.9rem; }
+        .detail-specs-table td:first-child { color: var(--text-muted); font-weight: 500; width: 40%; }
+        .detail-specs-table td:last-child { color: #fff; font-weight: 600; }
+        .product-detail-description { background: var(--bg-card); border: 1px solid var(--border-color); padding: 2rem; margin-bottom: 2rem; }
+        .product-detail-description h2 { font-size: 2rem; margin-bottom: 0.8rem; }
+        .product-detail-description p { color: var(--text-secondary); line-height: 1.7; font-size: 0.95rem; }
+        .detail-cta { background: linear-gradient(135deg, rgba(232,196,65,0.06), rgba(232,196,65,0.01)); border: 2px solid var(--accent); padding: 2rem; text-align: center; }
+        .detail-cta h3 { font-size: 1.6rem; margin-bottom: 0.5rem; }
+        .detail-cta p { color: var(--text-secondary); margin-bottom: 1.2rem; }
+        .reviews-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin-top: 2rem; }
+        .review-card { background: var(--bg-card); border: 1px solid var(--border-color); padding: 2rem; transition: all 0.4s ease; position: relative; }
+        .review-card::before { content: '"'; position: absolute; top: 5px; right: 20px; font-size: 5rem; color: rgba(232,196,65,0.08); font-family: serif; line-height: 1; pointer-events: none; }
+        .review-card:hover { border-color: var(--accent); box-shadow: var(--shadow-card); transform: translateY(-4px); }
+        .review-stars { color: var(--gold); font-size: 1.1rem; margin-bottom: 0.8rem; letter-spacing: 3px; }
+        .review-text { color: var(--text-primary); font-style: italic; margin-bottom: 1.2rem; font-size: 0.95rem; line-height: 1.6; }
+        .review-author { display: flex; align-items: center; gap: 12px; border-top: 1px solid var(--border-color); padding-top: 1rem; }
+        .review-author-avatar { width: 38px; height: 38px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; font-family: var(--font-heading); font-size: 1rem; color: #000; }
+        .review-author strong { color: #fff; display: block; font-size: 0.9rem; }
+        .review-author small { color: var(--text-muted); font-size: 0.75rem; }
+        .calculator { background: var(--bg-card); border: 1px solid var(--border-color); padding: 2.5rem; }
+        .calc-steps { display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+        .calc-group { flex: 1; min-width: 160px; }
+        .calc-group label { display: block; font-family: var(--font-heading); font-size: 1rem; letter-spacing: 2px; margin-bottom: 0.5rem; color: var(--accent); }
+        .calc-group select, .calc-group input { width: 100%; padding: 11px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff; font-family: var(--font-body); font-size: 0.9rem; transition: all 0.3s; }
+        .calc-group select:focus, .calc-group input:focus { outline: none; border-color: var(--accent); }
+        .calc-result { background: var(--bg-primary); border: 2px solid var(--accent); padding: 1.2rem; margin-top: 1.2rem; display: none; }
+        .calc-result.show { display: block; animation: fadeInUp 0.3s ease; }
+        .calc-result h3 { color: var(--accent); font-size: 1.6rem; }
+        .lead-form { display: flex; gap: 10px; margin-top: 1.2rem; flex-wrap: wrap; }
+        .lead-form input { flex: 1; min-width: 160px; padding: 12px 16px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff; font-family: var(--font-body); font-size: 0.9rem; transition: all 0.3s; }
+        .lead-form input:focus { outline: none; border-color: var(--accent); }
+        .popup-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 2100; display: flex; align-items: center; justify-content: center; opacity: 0; visibility: hidden; transition: all 0.4s ease; backdrop-filter: blur(5px); }
+        .popup-overlay.active { opacity: 1; visibility: visible; }
+        .popup { background: var(--bg-card); border: 2px solid var(--accent); padding: 2.5rem; max-width: 440px; width: 90%; text-align: center; position: relative; }
+        .popup-close { position: absolute; top: 8px; right: 12px; background: none; border: none; color: #fff; font-size: 1.6rem; cursor: pointer; transition: all 0.3s; }
+        .popup-close:hover { color: var(--accent); }
+        .popup h2 { font-size: 2rem; margin-bottom: 0.8rem; }
+        .brands-section { padding: 60px 0; background: var(--bg-secondary); border-top: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color); overflow: hidden; white-space: nowrap; position: relative; }
+        .brands-section::before, .brands-section::after { content: ''; position: absolute; top: 0; width: 60px; height: 100%; z-index: 2; pointer-events: none; }
+        .brands-section::before { left: 0; background: linear-gradient(to right, var(--bg-secondary), transparent); }
+        .brands-section::after { right: 0; background: linear-gradient(to left, var(--bg-secondary), transparent); }
+        .brands-track { display: flex; gap: 2.5rem; animation: scroll 30s linear infinite; width: max-content; }
+        .brands-track span { font-family: var(--font-heading); font-size: 2.2rem; letter-spacing: 3px; color: #2A2A32; transition: all 0.4s; cursor: default; }
+        .brands-track span:hover { color: var(--accent); text-shadow: 0 0 20px var(--accent-glow); }
+        @keyframes scroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+        .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2.5rem; align-items: start; }
+        .contact-info-block { background: var(--bg-card); padding: 2rem; border: 1px solid var(--border-color); }
+        .contact-item { margin-bottom: 1.5rem; display: flex; align-items: flex-start; gap: 12px; }
+        .contact-icon { width: 20px; height: 20px; color: var(--accent); flex-shrink: 0; margin-top: 3px; }
+        .contact-text strong { display: block; font-family: var(--font-heading); font-size: 1.2rem; letter-spacing: 2px; color: #fff; margin-bottom: 2px; }
+        .contact-text { color: var(--text-secondary); line-height: 1.6; font-size: 0.9rem; }
+        .map-block { background: var(--bg-card); border: 1px solid var(--border-color); height: 100%; min-height: 380px; display: flex; align-items: center; justify-content: center; font-family: var(--font-heading); font-size: 1.6rem; color: var(--text-muted); letter-spacing: 3px; }
+        .footer { background: var(--bg-card); border-top: 1px solid var(--border-color); padding: 40px 0 20px; }
+        .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 2rem; margin-bottom: 25px; }
+        .footer-col h4 { font-size: 1.2rem; letter-spacing: 2px; color: #fff; margin-bottom: 1rem; }
+        .footer-col p, .footer-col a { color: var(--text-muted); font-size: 0.85rem; line-height: 2; text-decoration: none; transition: color 0.3s; display: block; cursor: pointer; }
+        .footer-col a:hover { color: var(--accent); }
+        .footer-bottom { text-align: center; padding-top: 20px; border-top: 1px solid var(--border-color); color: var(--text-muted); font-size: 0.75rem; letter-spacing: 1px; }
+        .scroll-to-top { position: fixed; bottom: 20px; right: 20px; z-index: 999; background: var(--bg-card); border: 2px solid var(--accent); width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; cursor: pointer; opacity: 0; visibility: hidden; transition: all 0.4s ease; transform: translateY(10px); }
+        .scroll-to-top.visible { opacity: 1; visibility: visible; transform: translateY(0); }
+        .scroll-to-top:hover { background: var(--accent); box-shadow: 0 0 25px var(--accent-glow); }
+        .scroll-to-top svg { width: 18px; height: 18px; fill: none; stroke: #000; stroke-width: 2.5; }
+        .chat-widget { position: fixed; bottom: 80px; right: 20px; z-index: 998; }
+        .chat-bubble { width: 50px; height: 50px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 0 25px var(--accent-glow); transition: all 0.3s; }
+        .chat-bubble:hover { transform: scale(1.08); }
+        .chat-bubble svg { width: 22px; height: 22px; stroke: #000; stroke-width: 2.5; }
+        .chat-window { position: fixed; bottom: 145px; right: 20px; width: 340px; height: 420px; background: var(--bg-card); border: 1px solid var(--border-color); display: none; flex-direction: column; z-index: 997; box-shadow: 0 20px 60px rgba(0,0,0,0.8); }
+        .chat-window.open { display: flex; }
+        .chat-window-header { padding: 12px 16px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.3); }
+        .chat-window-header h3 { font-size: 1.1rem; letter-spacing: 2px; }
+        .chat-window-header button { background: none; border: none; color: #fff; font-size: 1.3rem; cursor: pointer; }
+        .chat-window-messages { flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+        .cw-msg { padding: 8px 12px; font-size: 0.82rem; max-width: 85%; line-height: 1.4; }
+        .cw-msg.client { background: rgba(232,196,65,0.12); border: 1px solid rgba(232,196,65,0.2); align-self: flex-end; color: #fff; }
+        .cw-msg.support { background: #1A1A22; align-self: flex-start; color: #fff; }
+        .cw-msg .cw-time { font-size: 0.6rem; color: var(--text-muted); margin-top: 3px; }
+        .cw-system { text-align: center; padding: 8px; margin: 4px 0; background: rgba(239,83,80,0.1); border: 1px solid rgba(239,83,80,0.2); color: #EF5350; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.5px; }
+        .chat-window-input { padding: 10px; border-top: 1px solid var(--border-color); display: flex; gap: 6px; }
+        .chat-window-input input { flex: 1; padding: 9px 12px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff; font-family: var(--font-body); font-size: 0.82rem; }
+        .chat-window-input input:focus { outline: none; border-color: var(--accent); }
+        .chat-window-input button { padding: 9px 14px; background: var(--accent); border: none; color: #000; font-weight: 700; cursor: pointer; font-family: var(--font-heading); letter-spacing: 2px; font-size: 0.85rem; }
+        @media (max-width: 768px) {
+            .product-detail-grid { grid-template-columns: 1fr; gap: 2rem; }
+            .footer-grid { grid-template-columns: 1fr 1fr; }
+            .contact-grid { grid-template-columns: 1fr; }
+            .hero h1 { font-size: 3rem; }
+            .header .container { flex-direction: column; gap: 8px; }
+            .catalog-grid, .features-grid, .products-grid { grid-template-columns: 1fr; }
+            .btn { width: 100%; justify-content: center; }
+            .calc-steps { flex-direction: column; }
+            .chat-window { width: 100%; right: 0; bottom: 0; height: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="header" id="header">
+        <div class="container">
+            <div class="logo" onclick="goHome()"><img src="logo-nice.png" alt="NICE ENDURO" class="logo-img">NICE<span style="color: var(--accent);">ENDURO</span></div>
+            <div class="contact-header">
+                <a href="tel:+79954808808"><svg class="phone-icon" viewBox="0 0 24 24"><path d="M6.62 10.79a15.05 15.05 0 0 0 6.59 6.59l2.2-2.2a1 1 0 0 1 1.02-.24 11.5 11.5 0 0 0 3.6.58 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1 11.5 11.5 0 0 0 .58 3.6 1 1 0 0 1-.24 1.02l-2.22 2.17z"/></svg>+7 (995) 4-808-808</a>
+            </div>
+        </div>
+    </header>
+
+    <div class="main-content" id="mainContent">
+        <div class="page active" id="page-home">
+            <section class="hero">
+                <video autoplay muted loop playsinline preload="none" class="hero-video" poster="hero-poster.jpg"><source src="hero-bg.mp4" type="video/mp4"></video>
+                <div class="hero-overlay"></div>
+                <div class="container"><div class="hero-content">
+                    <div class="hero-badge">ОФИЦИАЛЬНЫЙ ДИЛЕР</div>
+                    <h1>Испытай <span class="accent">предел</span></h1>
+                    <p>Официальный дилер эндуро, питбайков и квадроциклов в Кунгуре. Подбор, сервис, доставка.</p>
+                    <div class="hero-buttons">
+                        <a href="#catalog" class="btn">Смотреть технику <svg class="icon" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                        <a href="#consult" class="btn btn-outline" onclick="openConsultPopup()">Консультация <svg class="icon" viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></a>
+                    </div>
+                </div></div>
+            </section>
+            <section class="section section-dark" id="features"><div class="container">
+                <div class="section-title-wrapper"><p class="subtitle">Почему NICE ENDURO</p><h2>4 причины</h2></div>
+                <div class="features-grid">
+                    <div class="feature-card"><svg class="feature-icon icon-outline" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/></svg><h3>Точный подбор</h3><p>Анализируем опыт, рост и цели. Подбираем мотоцикл, который не разочарует.</p></div>
+                    <div class="feature-card"><svg class="feature-icon icon-outline" viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.77 3.77z"/></svg><h3>Свой сервис</h3><p>Ремонт, тюнинг и ТО любой сложности. Работаем с гарантией.</p></div>
+                    <div class="feature-card"><svg class="feature-icon icon-outline" viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg><h3>Доставка по РФ</h3><p>Отправляем технику и запчасти в любой регион с полной страховкой.</p></div>
+                    <div class="feature-card"><svg class="feature-icon icon-outline" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg><h3>Полная экипировка</h3><p>Шлемы, защита, мотоботы. Всё для безопасной езды.</p></div>
+                </div>
+            </div></section>
+            <div class="section-divider"></div>
+            <section class="section" id="catalog"><div class="container">
+                <div class="section-title-wrapper"><p class="subtitle">В наличии</p><h2>Категории</h2></div>
+                <div class="catalog-grid">
+                    <div class="catalog-card" onclick="navigateTo('moto')"><div class="card-image-wrap"><img src="enduromoto.jpg" alt="Мототехника" loading="lazy"></div><div class="card-content"><h3><svg viewBox="0 0 24 24" class="icon"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>Мототехника</h3><p>Эндуро, кросс и питбайки.</p><span class="card-link-text">Смотреть <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+                    <div class="catalog-card" onclick="navigateTo('atv')"><div class="card-image-wrap"><img src="atvquad.jpg" alt="Квадроциклы" loading="lazy"></div><div class="card-content"><h3><svg viewBox="0 0 24 24" class="icon"><rect x="3" y="6" width="18" height="12" rx="2"/><circle cx="7" cy="18" r="2"/><circle cx="17" cy="18" r="2"/></svg>Квадроциклы</h3><p>Утилитарные и спортивные.</p><span class="card-link-text">Смотреть <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+                    <div class="catalog-card" onclick="navigateTo('tracks')"><div class="card-image-wrap"><img src="tracks.jpg" alt="Гусеничные комплекты" loading="lazy"></div><div class="card-content"><h3><svg viewBox="0 0 24 24" class="icon"><ellipse cx="12" cy="12" rx="10" ry="7"/><circle cx="7" cy="12" r="1.5"/><circle cx="17" cy="12" r="1.5"/></svg>Гусеничные комплекты</h3><p>Для езды по снегу.</p><span class="card-link-text">Смотреть <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+                    <div class="catalog-card" onclick="navigateTo('gear')"><div class="card-image-wrap"><img src="gear.jpg" alt="Экипировка" loading="lazy"></div><div class="card-content"><h3><svg viewBox="0 0 24 24" class="icon"><path d="M12 2a4 4 0 0 0-4 4v2H4v4h1v8h14v-8h1V8h-4V6a4 4 0 0 0-4-4z"/></svg>Экипировка</h3><p>Шлемы, защита, мотоботы.</p><span class="card-link-text">Смотреть <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+                    <div class="catalog-card" onclick="navigateTo('parts')"><div class="card-image-wrap"><img src="oilparts.jpg" alt="ГСМ и запчасти" loading="lazy"></div><div class="card-content"><h3><svg viewBox="0 0 24 24" class="icon"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.77 3.77z"/></svg>ГСМ и запчасти</h3><p>Масла, фильтры, расходники.</p><span class="card-link-text">Смотреть <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div>
+                </div>
+            </div></section>
+            <div class="section-divider reverse"></div>
+            <section class="section"><div class="container">
+                <div class="section-title-wrapper"><p class="subtitle">Отзывы</p><h2>Реальные райдеры</h2></div>
+                <div class="reviews-grid">
+                    <div class="review-card"><div class="review-stars">★★★★★</div><p class="review-text">«Взял Kayo 250. Ребята помогли с выбором, всё объяснили. Через неделю уже гонял по лесам.»</p><div class="review-author"><div class="review-author-avatar">Д</div><div><strong>Дмитрий</strong><small>Пермь</small></div></div></div>
+                    <div class="review-card"><div class="review-stars">★★★★★</div><p class="review-text">«Доставили квадроцикл в Екатеринбург за 3 дня. Всё в идеале.»</p><div class="review-author"><div class="review-author-avatar">А</div><div><strong>Алексей</strong><small>Екатеринбург</small></div></div></div>
+                    <div class="review-card"><div class="review-stars">★★★★★</div><p class="review-text">«Покупал экипировку. Качество на уровне, цены адекватные.»</p><div class="review-author"><div class="review-author-avatar">С</div><div><strong>Сергей</strong><small>Кунгур</small></div></div></div>
+                </div>
+            </div></section>
+            <section class="section section-dark" id="consult"><div class="container">
+                <div class="section-title-wrapper"><p class="subtitle">Не уверены в выборе?</p><h2>Подберем за 1 минуту</h2></div>
+                <div class="calculator">
+                    <div class="calc-steps"><div class="calc-group"><label>Уровень</label><select id="level"><option value="">Выбрать</option><option>Новичок</option><option>Любитель</option><option>Профи</option></select></div><div class="calc-group"><label>Рост (см)</label><input type="number" id="height" placeholder="170-195"></div><div class="calc-group"><label>Тип</label><select id="type"><option value="">Выбрать</option><option>Эндуро</option><option>Питбайк</option><option>Квадроцикл</option></select></div><div class="calc-group"><button class="btn btn-sm" onclick="calculateBike()">Подобрать</button></div></div>
+                    <div class="calc-result" id="calcResult"><h3>Рекомендуем: <span id="bikeName"></span></h3><p id="bikeDesc"></p><a href="tel:+79954808808" class="btn btn-sm">Узнать цену и наличие</a></div>
+                </div>
+            </div></section>
+            <section class="brands-section">
+                <div class="brands-track"><span>XGZ</span><span>•</span><span>BRZ</span><span>•</span><span>PROGASI</span><span>•</span><span>HASKY</span><span>•</span><span>KAYO</span><span>•</span><span>GR</span><span>•</span><span>ROCKOT</span><span>•</span><span>REGULMOTO</span><span>•</span><span>NFX</span><span>•</span><span>KEWS</span><span>•</span><span>ATAKI</span><span>•</span><span>JHL</span><span>•</span><span>HTLD</span><span>•</span><span>FULLCREW</span><span>•</span><span>JMC</span><span>•</span><span>XGZ</span><span>•</span><span>BRZ</span><span>•</span><span>PROGASI</span><span>•</span><span>HASKY</span><span>•</span><span>KAYO</span><span>•</span><span>GR</span><span>•</span><span>ROCKOT</span><span>•</span><span>REGULMOTO</span><span>•</span><span>NFX</span><span>•</span><span>KEWS</span><span>•</span><span>ATAKI</span><span>•</span><span>JHL</span><span>•</span><span>HTLD</span><span>•</span><span>FULLCREW</span><span>•</span><span>JMC</span><span>•</span></div>
+            </section>
+            <section class="section" id="contact"><div class="container">
+                <div class="section-title-wrapper"><p class="subtitle">На связи</p><h2>Контакты</h2></div>
+                <div class="contact-grid">
+                    <div class="contact-info-block">
+                        <div class="contact-item"><svg class="contact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg><div class="contact-text"><strong>Адрес</strong>Пермский край, г. Кунгур, ул. Ст.Разина 48</div></div>
+                        <div class="contact-item"><svg class="contact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><div class="contact-text"><strong>Режим работы</strong>Пн-Пт: 10:00–19:00<br>Сб: 10:00–18:00 | Вс: 10:00–17:00</div></div>
+                        <div class="contact-item"><svg class="contact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6.62 10.79a15.05 15.05 0 0 0 6.59 6.59l2.2-2.2a1 1 0 0 1 1.02-.24 11.5 11.5 0 0 0 3.6.58 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1 11.5 11.5 0 0 0 .58 3.6 1 1 0 0 1-.24 1.02l-2.22 2.17z"/></svg><div class="contact-text"><strong>Телефон</strong><a href="tel:+79954808808" style="color:var(--accent);text-decoration:none;font-weight:700;">+7 (995) 4-808-808</a></div></div>
+                        <div class="lead-form"><input type="text" placeholder="Ваше имя" id="formName"><input type="tel" placeholder="+7 (___) ___-__-__" id="formPhone"><button class="btn btn-sm" onclick="submitLeadForm()">Заказать звонок</button></div>
+                    </div>
+                    <div class="map-block" style="background-image:url('map-kungur.jpg');background-size:cover;background-position:center;"></div>
+                </div>
+            </div></section>
+            <footer class="footer"><div class="container"><div class="footer-grid"><div class="footer-col"><h4>NICE ENDURO</h4><p>Официальный дилер мототехники в Кунгуре.</p></div><div class="footer-col"><h4>Категории</h4><a onclick="navigateTo('moto')">Мототехника</a><a onclick="navigateTo('atv')">Квадроциклы</a><a onclick="navigateTo('tracks')">Гусеничные</a><a onclick="navigateTo('gear')">Экипировка</a><a onclick="navigateTo('parts')">Запчасти</a></div><div class="footer-col"><h4>Клиентам</h4><a href="#features">Преимущества</a><a href="#catalog">Каталог</a><a href="#consult">Подбор</a><a href="#contact">Контакты</a></div><div class="footer-col"><h4>Контакты</h4><p>+7 (995) 4-808-808</p><p>г. Кунгур, ул. Ст.Разина 48</p><p>Пн-Пт: 10:00–19:00</p></div></div><div class="footer-bottom">© 2024 NICE ENDURO. Все права защищены.</div></div></footer>
+        </div>
+        <div class="page" id="page-category"><div class="container" id="categoryContent"></div><footer class="footer"><div class="container"><div class="footer-bottom">© 2024 NICE ENDURO. Все права защищены.</div></div></footer></div>
+        <div class="page" id="page-product"><div class="container" id="productContent"></div><footer class="footer"><div class="container"><div class="footer-bottom">© 2024 NICE ENDURO. Все права защищены.</div></div></footer></div>
+    </div>
+
+    <div class="popup-overlay" id="popupOverlay"><div class="popup"><button class="popup-close" onclick="closeConsultPopup()">×</button><h2>Консультация</h2><p style="color:var(--text-secondary);margin-bottom:1.2rem;">Оставьте номер — перезвоним за 5 минут.</p><div class="lead-form" style="flex-direction:column;"><input type="text" placeholder="Ваше имя" id="popupName"><input type="tel" placeholder="+7 (___) ___-__-__" id="popupPhone"><button class="btn" style="width:100%;" onclick="submitPopupForm()">Отправить</button></div></div></div>
+    <div class="scroll-to-top" id="scrollToTop"><svg viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg></div>
+    <div class="chat-widget">
+        <div class="chat-bubble" onclick="toggleChat()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+        <div class="chat-window" id="chatWindow"><div class="chat-window-header"><h3>Поддержка</h3><button onclick="toggleChat()">×</button></div><div class="chat-window-messages" id="chatMessages"></div><div class="chat-window-input"><input type="text" placeholder="Сообщение..." id="chatInput" onkeypress="if(event.key==='Enter')sendChatMessage()"><button onclick="sendChatMessage()">Отпр</button></div></div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://zrooftnesjmcaqjwojwi.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpyb29mdG5lc2ptY2FxandvandpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk2OTM5OTcsImV4cCI6MjA5NTI2OTk5N30.FNncL110petZQIy5COkYkArQtFq0yxszqI93lMri9YY';
+        const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        let chatTicketId = null, chatOpen = false, chatSubscription = null, statusSubscription = null;
+
+        let ticking = false;
+        const header = document.getElementById('header');
+        const scrollBtn = document.getElementById('scrollToTop');
+        window.addEventListener('scroll', () => { if (!ticking) { window.requestAnimationFrame(() => { if (window.scrollY > 50) { header.classList.add('scrolled'); scrollBtn.classList.add('visible'); } else { header.classList.remove('scrolled'); scrollBtn.classList.remove('visible'); } ticking = false; }); ticking = true; } });
+        scrollBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+        document.addEventListener('visibilitychange', () => { const v = document.querySelector('.hero-video'); if (v) document.hidden ? v.pause() : v.play().catch(()=>{}); });
+
+        function openConsultPopup() { document.getElementById('popupOverlay').classList.add('active'); }
+        function closeConsultPopup() { document.getElementById('popupOverlay').classList.remove('active'); }
+        document.getElementById('popupOverlay').addEventListener('click', function(e) { if (e.target === this) closeConsultPopup(); });
+
+        async function submitLeadForm() {
+            const n = document.getElementById('formName').value.trim();
+            const p = document.getElementById('formPhone').value.trim();
+            if (!n || !p) { alert('Заполните имя и телефон'); return; }
+            const { error } = await sb.from('requests').insert({ id: Date.now(), name: n, phone: p, type: 'call', status: 'new' });
+            if (error) { alert('Ошибка отправки'); return; }
+            alert('Заявка отправлена!'); document.getElementById('formName').value = ''; document.getElementById('formPhone').value = '';
+        }
+        async function submitPopupForm() {
+            const n = document.getElementById('popupName').value.trim();
+            const p = document.getElementById('popupPhone').value.trim();
+            if (!n || !p) { alert('Заполните имя и телефон'); return; }
+            const { error } = await sb.from('requests').insert({ id: Date.now(), name: n, phone: p, type: 'consultation', status: 'new' });
+            if (error) { alert('Ошибка отправки'); return; }
+            alert('Заявка отправлена!'); closeConsultPopup();
+        }
+
+        function toggleChat() { chatOpen = !chatOpen; document.getElementById('chatWindow').classList.toggle('open', chatOpen); if (chatOpen) initChat(); }
+        async function initChat() {
+            if (chatTicketId) { loadChatMessages(); return; }
+            const id = Date.now();
+            const { error } = await sb.from('tickets').insert({ id, name: 'Посетитель сайта', status: 'open' });
+            if (!error) {
+                chatTicketId = id;
+                await sb.from('messages').insert({ id: Date.now(), ticket_id: id, sender: 'client', text: 'Здравствуйте, нужна помощь.' });
+                subscribeToChat();
+                subscribeToTicketStatus();
+                loadChatMessages();
+            }
+        }
+        async function loadChatMessages() {
+            if (!chatTicketId) return;
+            const { data } = await sb.from('messages').select('*').eq('ticket_id', chatTicketId).order('created_at', { ascending: true });
+            const container = document.getElementById('chatMessages');
+            if (!data) return;
+            container.innerHTML = data.map(m => `<div class="cw-msg ${m.sender}"><div>${m.text}</div><div class="cw-time">${new Date(m.created_at).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}</div></div>`).join('');
+            container.scrollTop = container.scrollHeight;
+        }
+        function subscribeToChat() {
+            if (chatSubscription) sb.removeChannel(chatSubscription);
+            chatSubscription = sb.channel('chat-' + chatTicketId).on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages', filter: `ticket_id=eq.${chatTicketId}` }, () => loadChatMessages()).subscribe();
+        }
+        function subscribeToTicketStatus() {
+            if (statusSubscription) sb.removeChannel(statusSubscription);
+            statusSubscription = sb.channel('ticket-status-' + chatTicketId).on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'tickets', filter: `id=eq.${chatTicketId}` }, (payload) => {
+                if (payload.new.status === 'closed') {
+                    const container = document.getElementById('chatMessages');
+                    const sysMsg = document.createElement('div');
+                    sysMsg.className = 'cw-system';
+                    sysMsg.textContent = 'Тикет закрыт поддержкой';
+                    container.appendChild(sysMsg);
+                    container.scrollTop = container.scrollHeight;
+                    document.getElementById('chatInput').disabled = true;
+                    document.getElementById('chatInput').placeholder = 'Тикет закрыт';
+                    if (chatSubscription) sb.removeChannel(chatSubscription);
+                    if (statusSubscription) sb.removeChannel(statusSubscription);
+                }
+            }).subscribe();
+        }
+        async function sendChatMessage() {
+            const input = document.getElementById('chatInput');
+            const text = input.value.trim();
+            if (!text || !chatTicketId) return;
+            await sb.from('messages').insert({ id: Date.now(), ticket_id: chatTicketId, sender: 'client', text });
+            input.value = '';
+        }
+
+        function hideAllPages() { document.querySelectorAll('.page').forEach(p => p.classList.remove('active')); }
+        function goHome() { hideAllPages(); document.getElementById('page-home').classList.add('active'); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+        const categoriesData = {
+            moto: { title: 'Мототехника', desc: 'Настоящая и лучшая мототехника! Эндуро, кросс и питбайки от ведущих мировых брендов.', products: [{ id: 'kayo250', img: 'kayo250.jpg', name: 'Kayo 250', specs: ['250 куб.см','110 кг','5 передач'], price: 'от 189 000 ₽', available: true },{ id: 'brz300', img: 'brz300.jpg', name: 'BRZ 300', specs: ['300 куб.см','118 кг','6 передач'], price: 'от 215 000 ₽', available: true },{ id: 'hasky450', img: 'hasky450.jpg', name: 'Hasky 450', specs: ['450 куб.см','125 кг','5 передач'], price: 'от 320 000 ₽', available: true },{ id: 'gr200', img: 'gr200.jpg', name: 'GR 200', specs: ['200 куб.см','95 кг','4 передачи'], price: 'от 120 000 ₽', available: false },{ id: 'regulmoto300', img: 'regulmoto300.jpg', name: 'Regulmoto 300', specs: ['300 куб.см','115 кг','6 передач'], price: 'от 250 000 ₽', available: true }] },
+            atv: { title: 'Квадроциклы', desc: 'Откройте для себя свободу передвижения по любым дорогам!', products: [{ id: 'progasi300', img: 'progasi300.jpg', name: 'Progasi 300', specs: ['300 куб.см','280 кг','4×4'], price: 'от 350 000 ₽', available: true },{ id: 'xgz500', img: 'xgz500.jpg', name: 'XGZ 500', specs: ['500 куб.см','320 кг','4×4'], price: 'от 420 000 ₽', available: true },{ id: 'rockot200', img: 'rockot200.jpg', name: 'Rockot 200', specs: ['200 куб.см','240 кг','2×4'], price: 'от 220 000 ₽', available: true }] },
+            tracks: { title: 'Гусеничные комплекты', desc: 'Откройте для себя езду по снегу!', products: [{ id: 'tracks-std', img: 'tracks-standard.jpg', name: 'Комплект "Стандарт"', specs: ['120 см','30 см','Алюминий'], price: 'от 85 000 ₽', available: true },{ id: 'tracks-pro', img: 'tracks-pro.jpg', name: 'Комплект "Профи"', specs: ['150 см','38 см','Сталь'], price: 'от 120 000 ₽', available: true }] },
+            gear: { title: 'Экипировка', desc: 'Мотоэкипировка для настоящих райдеров!', products: [{ id: 'helmet-fc', img: 'helmet-fullcrew.jpg', name: 'Шлем FullCrew', specs: ['Карбон','Двойной визор'], price: 'от 19 000 ₽', available: true },{ id: 'boots-jmc', img: 'boots-jmc.jpg', name: 'Мотоботы JMC', specs: ['Кожа','Защита голени'], price: 'от 12 500 ₽', available: true },{ id: 'armor-htld', img: 'body-armor-htld.jpg', name: 'Защита тела HTLD', specs: ['Пластик','Дышащая'], price: 'от 8 000 ₽', available: true }] },
+            parts: { title: 'ГСМ и запчасти', desc: 'Всё для хорошего обслуживания вашей техники!', products: [{ id: 'oil-motul', img: 'oil-motul.jpg', name: 'Масло Motul 10W40', specs: ['4T','1 литр'], price: 'от 1 200 ₽', available: true },{ id: 'oil-filter', img: 'oil-filter.jpg', name: 'Масляный фильтр', specs: ['Универсальный'], price: 'от 450 ₽', available: true },{ id: 'chain-520', img: 'chain-520.jpg', name: 'Цепь 520', specs: ['112 звеньев','Усиленная'], price: 'от 1 800 ₽', available: true }] }
+        };
+        const productDetails = {
+            'kayo250': { desc: 'Kayo 250 — идеальный эндуро-мотоцикл для начинающих и опытных райдеров.', fullSpecs: { 'Двигатель': '250 куб.см', 'Мощность': '22 л.с.', 'Вес': '110 кг', 'КПП': '5 передач', 'Бак': '7 л', 'Гарантия': '12 мес' } },
+            'brz300': { desc: 'BRZ 300 — мощный кроссовый мотоцикл.', fullSpecs: { 'Двигатель': '300 куб.см', 'Мощность': '28 л.с.', 'Вес': '118 кг', 'КПП': '6 передач', 'Бак': '8 л', 'Гарантия': '12 мес' } },
+            'hasky450': { desc: 'Hasky 450 — флагманский эндуро-мотоцикл.', fullSpecs: { 'Двигатель': '450 куб.см', 'Мощность': '45 л.с.', 'Вес': '125 кг', 'КПП': '5 передач', 'Бак': '9 л', 'Гарантия': '12 мес' } },
+            'gr200': { desc: 'GR 200 — компактный питбайк для города.', fullSpecs: { 'Двигатель': '200 куб.см', 'Мощность': '16 л.с.', 'Вес': '95 кг', 'КПП': '4 передачи', 'Бак': '5 л', 'Гарантия': '6 мес' } },
+            'regulmoto300': { desc: 'Regulmoto 300 — универсальный эндуро-мотоцикл.', fullSpecs: { 'Двигатель': '300 куб.см', 'Мощность': '26 л.с.', 'Вес': '115 кг', 'КПП': '6 передач', 'Бак': '8 л', 'Гарантия': '12 мес' } }
+        };
+        ['progasi300','xgz500','rockot200','tracks-std','tracks-pro','helmet-fc','boots-jmc','armor-htld','oil-motul','oil-filter','chain-520'].forEach(id => { if (!productDetails[id]) productDetails[id] = { desc: 'Подробная информация уточняется у менеджера.', fullSpecs: { 'Наличие': 'Уточняйте', 'Доставка': 'По РФ', 'Гарантия': 'От производителя' } }; });
+
+        function navigateTo(c) {
+            const d = categoriesData[c];
+            document.getElementById('categoryContent').innerHTML = `<div class="category-hero"><div class="breadcrumbs"><a onclick="goHome()">Главная</a><span>/</span><span>${d.title}</span></div><button class="btn btn-back" onclick="goHome()"><svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2"><polyline points="15 18 9 12 15 6"/></svg>На главную</button><h1>${d.title}</h1><p class="cat-desc">${d.desc}</p></div><div class="products-grid">${d.products.map(p => `<div class="product-card" onclick="openProduct('${c}','${p.id}')"><div class="product-card-image"><img src="${p.img}" alt="${p.name}" loading="lazy"><span class="stock-tag ${p.available?'in-stock':'order'}">${p.available?'В наличии':'Под заказ'}</span></div><div class="product-card-body"><h3>${p.name}</h3><div class="specs-row">${p.specs.map(s => `<span>${s}</span>`).join('')}</div><div class="product-card-footer"><span class="price">${p.price}</span><span class="arrow"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></div></div></div>`).join('')}</div><div style="text-align:center;padding:30px 0;"><p style="color:var(--text-muted);margin-bottom:12px;">Не нашли что искали?</p><a href="tel:+79954808808" class="btn btn-sm">Позвонить</a></div>`;
+            hideAllPages(); document.getElementById('page-category').classList.add('active'); window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        function openProduct(c, pid) {
+            const cat = categoriesData[c]; const p = cat.products.find(x => x.id === pid); const det = productDetails[pid] || { desc: 'Описание уточняется.', fullSpecs: {} };
+            let rows = ''; for (const [k, v] of Object.entries(det.fullSpecs)) rows += `<tr><td>${k}</td><td>${v}</td></tr>`;
+            document.getElementById('productContent').innerHTML = `<div class="product-detail"><div class="breadcrumbs"><a onclick="goHome()">Главная</a><span>/</span><a onclick="navigateTo('${c}')">${cat.title}</a><span>/</span><span>${p.name}</span></div><button class="btn btn-back" onclick="navigateTo('${c}')"><svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2"><polyline points="15 18 9 12 15 6"/></svg>Назад</button><div class="product-detail-grid"><div class="product-detail-image"><img src="${p.img}" alt="${p.name}"><span class="detail-badge">${p.specs[0]}</span></div><div class="product-detail-info"><h1>${p.name}</h1><div class="detail-price">${p.price}</div><table class="detail-specs-table">${rows}</table><a href="tel:+79954808808" class="btn" style="width:100%;">Позвонить и заказать</a></div></div><div class="product-detail-description"><h2>Описание</h2><p>${det.desc}</p></div><div class="detail-cta"><h3>Заинтересовал ${p.name}?</h3><p>Позвоните — расскажем о наличии и специальных условиях.</p><a href="tel:+79954808808" class="btn">+7 (995) 4-808-808</a></div></div>`;
+            hideAllPages(); document.getElementById('page-product').classList.add('active'); window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        function calculateBike() {
+            const l = document.getElementById('level').value, h = document.getElementById('height').value, t = document.getElementById('type').value;
+            const r = document.getElementById('calcResult'), n = document.getElementById('bikeName'), d = document.getElementById('bikeDesc');
+            if (!l || !h || !t) { r.classList.add('show'); n.textContent = 'заполните все поля'; d.textContent = ''; return; }
+            r.classList.add('show'); t === 'Эндуро' ? (n.textContent='Kayo 250', d.textContent='Идеальный старт для роста '+h+' см.') : t === 'Питбайк' ? (n.textContent='BRZ 190', d.textContent='Маневренный питбайк.') : (n.textContent='Progasi 300', d.textContent='Мощный квадроцикл.');
+        }
+    </script>
+</body>
+</html>
