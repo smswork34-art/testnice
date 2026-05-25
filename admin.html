@@ -3,148 +3,157 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NICE ENDURO | Админ · Заявки</title>
+    <title>NICE ENDURO | Админ-панель</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
-            --bg-primary: #060608; --bg-secondary: #0E0E12; --bg-card: #14141A; --bg-hover: #1A1A22;
-            --accent: #E8C441; --accent-light: #F5DC70; --accent-glow: rgba(232, 196, 65, 0.4);
-            --text-primary: #F0F0F5; --text-secondary: #909099; --text-muted: #555560;
-            --border-color: #1E1E28; --border-light: #2A2A36;
-            --green: #4CAF50; --green-bg: rgba(76, 175, 80, 0.1); --green-border: rgba(76, 175, 80, 0.2);
-            --red: #EF5350; --red-bg: rgba(239, 83, 80, 0.1); --red-border: rgba(239, 83, 80, 0.2);
-            --blue: #42A5F5; --blue-bg: rgba(66, 165, 245, 0.1); --blue-border: rgba(66, 165, 245, 0.2);
-            --orange: #FF9800; --orange-bg: rgba(255, 152, 0, 0.1); --orange-border: rgba(255, 152, 0, 0.2);
-            --font-heading: 'Bebas Neue', 'Arial Narrow', 'Impact', sans-serif;
-            --font-body: 'Inter', sans-serif;
-            --sidebar-width: 260px;
+            --bg: #030305; --bg2: #0A0A0F; --card: #0E0E14; --hover: #14141C;
+            --accent: #E8C441; --accent2: #F5DC70; --glow: rgba(232,196,65,0.3);
+            --text: #F0F0F5; --text2: #909099; --text3: #555560;
+            --border: #1C1C28; --border2: #282838;
+            --green: #4CAF50; --green-bg: rgba(76,175,80,0.08);
+            --red: #EF5350; --red-bg: rgba(239,83,80,0.08);
+            --blue: #42A5F5; --orange: #FF9800;
+            --font-h: 'Bebas Neue', 'Arial Narrow', sans-serif;
+            --font-b: 'Inter', sans-serif;
+            --side: 250px;
         }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background: var(--bg-primary); color: var(--text-primary); font-family: var(--font-body); min-height: 100vh; -webkit-font-smoothing: antialiased; background-image: radial-gradient(ellipse at 50% 0%, rgba(232,196,65,0.03) 0%, transparent 60%); }
-        body::-webkit-scrollbar { width: 4px; }
-        body::-webkit-scrollbar-track { background: transparent; }
-        body::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 2px; }
-        body::-webkit-scrollbar-thumb:hover { background: var(--accent); }
-        .sidebar { position: fixed; left: 0; top: 0; bottom: 0; width: var(--sidebar-width); background: var(--bg-card); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; z-index: 200; padding: 25px 0; transition: transform 0.3s ease; }
-        .sidebar-logo { padding: 0 25px 25px; border-bottom: 1px solid var(--border-color); margin-bottom: 25px; font-family: var(--font-heading); font-size: 1.8rem; letter-spacing: 4px; color: #fff; display: flex; align-items: center; gap: 10px; }
-        .sidebar-logo span { color: var(--accent); }
-        .sidebar-nav { flex: 1; padding: 0 15px; }
-        .sidebar-nav a { display: flex; align-items: center; gap: 12px; padding: 12px 15px; color: var(--text-secondary); text-decoration: none; font-size: 0.9rem; font-weight: 500; letter-spacing: 0.5px; transition: all 0.2s; margin-bottom: 2px; border: 1px solid transparent; }
-        .sidebar-nav a:hover { color: #fff; background: var(--bg-hover); border-color: var(--border-color); }
-        .sidebar-nav a.active { color: var(--accent); background: rgba(232,196,65,0.05); border-color: rgba(232,196,65,0.2); }
-        .sidebar-nav a svg { width: 18px; height: 18px; flex-shrink: 0; }
-        .sidebar-nav .badge { margin-left: auto; background: var(--accent); color: #000; font-size: 0.7rem; font-weight: 800; padding: 2px 8px; letter-spacing: 1px; min-width: 22px; text-align: center; }
-        .sidebar-footer { padding: 20px 25px; border-top: 1px solid var(--border-color); font-size: 0.75rem; color: var(--text-muted); }
-        .main-area { margin-left: var(--sidebar-width); min-height: 100vh; }
-        .top-bar { background: rgba(10,10,14,0.8); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); padding: 16px 30px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid var(--border-color); gap: 15px; }
-        .top-bar h2 { font-family: var(--font-heading); font-size: 1.6rem; letter-spacing: 3px; color: #fff; }
-        .top-bar-right { display: flex; align-items: center; gap: 15px; }
-        .top-bar-right .live-dot { width: 8px; height: 8px; background: var(--green); border-radius: 50%; animation: pulse-dot 2s infinite; }
-        @keyframes pulse-dot { 0%,100%{box-shadow:0 0 0 0 rgba(76,175,80,0.4)} 50%{box-shadow:0 0 0 10px rgba(76,175,80,0)} }
-        .top-bar-right .live-text { font-size: 0.8rem; color: var(--green); font-weight: 600; letter-spacing: 0.5px; }
-        .menu-toggle { display: none; background: none; border: 1px solid var(--border-color); color: #fff; padding: 8px 12px; cursor: pointer; }
-        .menu-toggle svg { width: 22px; height: 22px; }
-        .content-area { padding: 30px; }
-        .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 30px; }
-        .stat-card { background: var(--bg-card); border: 1px solid var(--border-color); padding: 22px 25px; display: flex; align-items: center; gap: 18px; transition: all 0.3s ease; position: relative; overflow: hidden; }
-        .stat-card::after { content: ''; position: absolute; top: 0; right: 0; width: 80px; height: 80px; border-radius: 50%; transform: translate(30px, -30px); opacity: 0.06; pointer-events: none; }
-        .stat-card.total::after { background: var(--accent); }
-        .stat-card.new::after { background: var(--green); }
-        .stat-card.process::after { background: var(--blue); }
-        .stat-card.done::after { background: var(--orange); }
-        .stat-card:hover { border-color: var(--border-light); transform: translateY(-3px); box-shadow: 0 8px 30px rgba(0,0,0,0.6); }
-        .stat-card .stat-icon { width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-        .stat-card .stat-icon svg { width: 26px; height: 26px; }
-        .stat-card.total .stat-icon { background: rgba(232,196,65,0.12); color: var(--accent); }
-        .stat-card.new .stat-icon { background: var(--green-bg); color: var(--green); }
-        .stat-card.process .stat-icon { background: var(--blue-bg); color: var(--blue); }
-        .stat-card.done .stat-icon { background: var(--orange-bg); color: var(--orange); }
-        .stat-card .stat-info h3 { font-family: var(--font-heading); font-size: 2.4rem; letter-spacing: 1px; color: #fff; line-height: 1; margin-bottom: 4px; }
-        .stat-card .stat-info p { font-size: 0.75rem; color: var(--text-muted); letter-spacing: 2px; text-transform: uppercase; font-weight: 600; }
-        .filters-panel { background: var(--bg-card); border: 1px solid var(--border-color); padding: 18px 22px; display: flex; gap: 15px; align-items: center; flex-wrap: wrap; margin-bottom: 20px; }
-        .search-wrapper { flex: 1; min-width: 200px; position: relative; }
-        .search-wrapper svg { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); width: 18px; height: 18px; color: var(--text-muted); pointer-events: none; }
-        .search-input { width: 100%; padding: 12px 16px 12px 44px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff; font-family: var(--font-body); font-size: 0.9rem; transition: all 0.3s; }
-        .search-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(232,196,65,0.08); }
-        .search-input::placeholder { color: var(--text-muted); }
-        .filter-select { padding: 12px 36px 12px 16px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff; font-family: var(--font-body); font-size: 0.85rem; cursor: pointer; min-width: 150px; transition: all 0.3s; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23909099' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; }
-        .filter-select:focus { outline: none; border-color: var(--accent); }
-        .btn-icon { padding: 12px 20px; background: var(--accent); border: none; color: #000; font-family: var(--font-heading); font-size: 0.9rem; letter-spacing: 2px; cursor: pointer; text-transform: uppercase; transition: all 0.3s; display: flex; align-items: center; gap: 8px; font-weight: 700; }
-        .btn-icon:hover { background: var(--accent-light); box-shadow: 0 0 30px var(--accent-glow); }
-        .btn-icon svg { width: 16px; height: 16px; }
-        .table-container { background: var(--bg-card); border: 1px solid var(--border-color); overflow: hidden; }
-        .table-container-header { padding: 16px 22px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; }
-        .table-container-header h3 { font-family: var(--font-heading); font-size: 1.3rem; letter-spacing: 2px; color: #fff; }
-        .table-container-header .count { font-size: 0.8rem; color: var(--text-muted); letter-spacing: 1px; }
-        .requests-table { width: 100%; border-collapse: collapse; }
-        .requests-table th { text-align: left; padding: 12px 22px; font-family: var(--font-heading); font-size: 0.8rem; letter-spacing: 3px; color: var(--text-muted); border-bottom: 1px solid var(--border-color); text-transform: uppercase; font-weight: 400; }
-        .requests-table td { padding: 14px 22px; border-bottom: 1px solid rgba(255,255,255,0.02); font-size: 0.88rem; }
-        .requests-table tbody tr { transition: all 0.15s; }
-        .requests-table tbody tr:hover { background: var(--bg-hover); }
-        .requests-table tbody tr:last-child td { border-bottom: none; }
-        .status-badge { display: inline-flex; align-items: center; gap: 7px; padding: 6px 14px; font-size: 0.7rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; }
-        .status-badge::before { content: ''; width: 7px; height: 7px; border-radius: 50%; }
-        .status-badge.new { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
-        .status-badge.new::before { background: var(--green); box-shadow: 0 0 6px rgba(76,175,80,0.5); }
-        .status-badge.process { background: var(--blue-bg); color: var(--blue); border: 1px solid var(--blue-border); }
-        .status-badge.process::before { background: var(--blue); box-shadow: 0 0 6px rgba(66,165,245,0.5); }
-        .status-badge.done { background: var(--orange-bg); color: var(--orange); border: 1px solid var(--orange-border); }
-        .status-badge.done::before { background: var(--orange); box-shadow: 0 0 6px rgba(255,152,0,0.5); }
-        .status-badge.cancel { background: var(--red-bg); color: var(--red); border: 1px solid var(--red-border); }
-        .status-badge.cancel::before { background: var(--red); box-shadow: 0 0 6px rgba(239,83,80,0.5); }
-        .phone-link { color: var(--accent); text-decoration: none; font-weight: 600; transition: color 0.2s; font-size: 0.88rem; letter-spacing: 0.5px; }
-        .phone-link:hover { color: var(--accent-light); }
-        .actions-cell { display: flex; gap: 6px; align-items: center; }
-        .action-btn { padding: 8px 14px; font-size: 0.7rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; cursor: pointer; border: 1px solid var(--border-color); background: transparent; color: var(--text-secondary); transition: all 0.2s; font-family: var(--font-body); display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; }
-        .action-btn svg { width: 13px; height: 13px; }
-        .action-btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(232,196,65,0.05); }
-        .action-btn.delete:hover { border-color: var(--red); color: var(--red); background: var(--red-bg); }
-        .action-btn.call { background: var(--accent); border-color: var(--accent); color: #000; }
-        .action-btn.call:hover { background: var(--accent-light); border-color: var(--accent-light); }
-        .action-btn.call svg { stroke: #000; }
-        .status-select { padding: 8px 28px 8px 10px; font-size: 0.7rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; cursor: pointer; border: 1px solid var(--border-color); background: transparent; color: var(--text-secondary); font-family: var(--font-body); transition: all 0.2s; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%23909099' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; }
-        .status-select:hover { border-color: var(--accent); color: var(--accent); }
-        .status-select option { background: var(--bg-card); color: #fff; }
-        .empty-state { text-align: center; padding: 70px 20px; }
-        .empty-state svg { width: 56px; height: 56px; color: var(--text-muted); margin-bottom: 18px; opacity: 0.5; }
-        .empty-state h3 { font-family: var(--font-heading); font-size: 1.8rem; letter-spacing: 2px; margin-bottom: 6px; }
-        .empty-state p { color: var(--text-muted); font-size: 0.9rem; }
-        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 300; display: flex; align-items: center; justify-content: center; opacity: 0; visibility: hidden; transition: all 0.3s; }
-        .modal-overlay.active { opacity: 1; visibility: visible; }
-        .modal { background: var(--bg-card); border: 1px solid var(--border-color); padding: 30px; max-width: 440px; width: 90%; box-shadow: 0 8px 30px rgba(0,0,0,0.6); }
-        .modal h3 { font-family: var(--font-heading); font-size: 1.8rem; letter-spacing: 2px; margin-bottom: 15px; }
-        .modal p { color: var(--text-secondary); margin-bottom: 15px; font-size: 0.9rem; }
-        .modal .btn-row { display: flex; gap: 10px; justify-content: flex-end; }
-        .mobile-card { display: none; background: var(--bg-card); border: 1px solid var(--border-color); padding: 16px; margin-bottom: 10px; }
-        .mobile-card .mc-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
-        .mobile-card .mc-name { font-weight: 700; font-size: 1rem; }
-        .mobile-card .mc-phone { color: var(--accent); font-size: 0.9rem; margin-bottom: 6px; }
-        .mobile-card .mc-meta { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; font-size: 0.8rem; color: var(--text-muted); }
-        .mobile-card .mc-actions { display: flex; gap: 8px; flex-wrap: wrap; }
-        @media (max-width: 1024px) { .stats-row { grid-template-columns: repeat(2, 1fr); } }
-        @media (max-width: 768px) {
-            .sidebar { transform: translateX(-100%); }
-            .sidebar.open { transform: translateX(0); }
-            .main-area { margin-left: 0; }
-            .menu-toggle { display: block; }
-            .stats-row { grid-template-columns: 1fr 1fr; gap: 8px; }
-            .stat-card { padding: 14px 16px; gap: 10px; }
-            .stat-card .stat-icon { width: 38px; height: 38px; }
-            .stat-card .stat-icon svg { width: 20px; height: 20px; }
-            .stat-card .stat-info h3 { font-size: 1.6rem; }
-            .stat-card .stat-info p { font-size: 0.65rem; letter-spacing: 1px; }
-            .filters-panel { flex-direction: column; padding: 14px; }
-            .search-wrapper { min-width: 100%; }
-            .filter-select { min-width: 100%; }
-            .top-bar { padding: 12px 16px; }
-            .content-area { padding: 16px 12px; }
-            .requests-table { display: none; }
-            .table-container-header { display: none; }
-            .table-container { background: transparent; border: none; }
-            .mobile-card { display: block; }
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{background:var(--bg);color:var(--text);font-family:var(--font-b);min-height:100vh;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+        body::after{content:'';position:fixed;inset:0;z-index:9999;pointer-events:none;opacity:0.025;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:200px 200px}
+        body::-webkit-scrollbar{width:4px}
+        body::-webkit-scrollbar-track{background:transparent}
+        body::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+        body::-webkit-scrollbar-thumb:hover{background:var(--accent)}
+
+        .sidebar{position:fixed;left:0;top:0;bottom:0;width:var(--side);background:var(--card);border-right:1px solid var(--border);display:flex;flex-direction:column;z-index:200;padding:28px 0;transition:transform 0.35s cubic-bezier(0.4,0,0.2,1);will-change:transform}
+        .sidebar-logo{padding:0 24px 28px;border-bottom:1px solid var(--border);margin-bottom:28px;font-family:var(--font-h);font-size:1.5rem;letter-spacing:4px;color:#fff;display:flex;align-items:center;gap:10px}
+        .sidebar-logo span{color:var(--accent)}
+        .sidebar-nav{flex:1;padding:0 10px;overflow-y:auto}
+        .sidebar-nav a{display:flex;align-items:center;gap:11px;padding:10px 14px;color:var(--text2);text-decoration:none;font-size:0.83rem;font-weight:500;letter-spacing:0.5px;transition:all 0.2s;margin-bottom:1px;border:1px solid transparent;cursor:pointer;position:relative}
+        .sidebar-nav a:hover{color:#fff;background:var(--hover);border-color:var(--border)}
+        .sidebar-nav a.active{color:var(--accent);background:rgba(232,196,65,0.04);border-color:rgba(232,196,65,0.15)}
+        .sidebar-nav a.active::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:2px;height:20px;background:var(--accent);box-shadow:0 0 10px var(--glow)}
+        .sidebar-nav a svg{width:16px;height:16px;flex-shrink:0}
+        .sidebar-nav .badge{margin-left:auto;background:var(--accent);color:#000;font-size:0.62rem;font-weight:800;padding:2px 7px;letter-spacing:1px;min-width:18px;text-align:center;animation:pulse-badge 2s infinite}
+        @keyframes pulse-badge{0%,100%{box-shadow:0 0 0 0 rgba(232,196,65,0.4)}50%{box-shadow:0 0 0 8px rgba(232,196,65,0)}}
+        .sidebar-footer{padding:18px 24px;border-top:1px solid var(--border);font-size:0.68rem;color:var(--text3);letter-spacing:1px}
+
+        .main-area{margin-left:var(--side);min-height:100vh}
+        .top-bar{background:rgba(3,3,5,0.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);padding:12px 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;border-bottom:1px solid var(--border);gap:14px}
+        .top-bar h2{font-family:var(--font-h);font-size:1.4rem;letter-spacing:3px;color:#fff}
+        .top-bar-right{display:flex;align-items:center;gap:16px}
+        .top-bar .live-dot{width:7px;height:7px;background:var(--green);border-radius:50%;animation:live-pulse 2s infinite}
+        @keyframes live-pulse{0%,100%{box-shadow:0 0 0 0 rgba(76,175,80,0.5)}50%{box-shadow:0 0 0 10px rgba(76,175,80,0)}}
+        .top-bar .live-text{font-size:0.72rem;color:var(--green);font-weight:600;letter-spacing:0.5px}
+        .menu-toggle{display:none;background:none;border:1px solid var(--border);color:#fff;padding:7px 10px;cursor:pointer}
+        .menu-toggle svg{width:19px;height:19px}
+        .content-area{padding:24px;max-width:1500px}
+        .tab-content{display:none}
+        .tab-content.active{display:block;animation:tabIn 0.3s ease}
+        @keyframes tabIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+        .btn{padding:10px 20px;font-family:var(--font-h);font-size:0.85rem;letter-spacing:2px;text-transform:uppercase;cursor:pointer;border:none;transition:all 0.3s;display:inline-flex;align-items:center;gap:7px;font-weight:700;position:relative;overflow:hidden}
+        .btn-primary{background:var(--accent);color:#000}
+        .btn-primary:hover{background:var(--accent2);transform:translateY(-2px);box-shadow:0 0 30px var(--glow)}
+        .btn-outline{background:transparent;border:1px solid var(--border);color:var(--text2)}
+        .btn-outline:hover{border-color:var(--accent);color:var(--accent);background:rgba(232,196,65,0.04);transform:translateY(-2px)}
+        .btn-sm{padding:6px 12px;font-size:0.7rem;letter-spacing:1px}
+        .btn-xs{padding:4px 9px;font-size:0.6rem;letter-spacing:1px}
+
+        .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px}
+        .stat-card{background:var(--card);border:1px solid var(--border);padding:18px 20px;display:flex;align-items:center;gap:14px;transition:all 0.35s;position:relative;overflow:hidden;cursor:default;animation:cardIn 0.5s ease backwards}
+        .stat-card:nth-child(1){animation-delay:0s}
+        .stat-card:nth-child(2){animation-delay:0.1s}
+        .stat-card:nth-child(3){animation-delay:0.2s}
+        .stat-card:nth-child(4){animation-delay:0.3s}
+        @keyframes cardIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+        .stat-card::after{content:'';position:absolute;top:-40%;right:-40%;width:90px;height:90px;border-radius:50%;opacity:0.03;pointer-events:none;transition:all 0.5s}
+        .stat-card:hover::after{transform:scale(1.5);opacity:0.06}
+        .stat-card.total::after{background:var(--accent)}
+        .stat-card.new::after{background:var(--green)}
+        .stat-card.process::after{background:var(--blue)}
+        .stat-card.done::after{background:var(--orange)}
+        .stat-card:hover{border-color:var(--border2);transform:translateY(-3px);box-shadow:0 10px 30px rgba(0,0,0,0.5)}
+        .stat-card .stat-icon{width:44px;height:44px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:transform 0.3s}
+        .stat-card:hover .stat-icon{transform:scale(1.08)}
+        .stat-card.total .stat-icon{background:rgba(232,196,65,0.1);color:var(--accent)}
+        .stat-card.new .stat-icon{background:var(--green-bg);color:var(--green)}
+        .stat-card.process .stat-icon{background:rgba(66,165,245,0.1);color:var(--blue)}
+        .stat-card.done .stat-icon{background:rgba(255,152,0,0.1);color:var(--orange)}
+        .stat-card .stat-icon svg{width:20px;height:20px}
+        .stat-card .stat-info h3{font-family:var(--font-h);font-size:1.8rem;letter-spacing:1px;color:#fff;line-height:1}
+        .stat-card .stat-info p{font-size:0.62rem;color:var(--text3);letter-spacing:2px;text-transform:uppercase;font-weight:600;margin-top:2px}
+
+        .card{background:var(--card);border:1px solid var(--border);padding:20px;margin-bottom:16px;animation:cardIn 0.4s ease backwards}
+        .card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px}
+        .card-header h3{font-family:var(--font-h);font-size:1.2rem;letter-spacing:2px;color:#fff}
+
+        .chart-container{background:var(--card);border:1px solid var(--border);padding:20px;margin-bottom:16px;height:200px;position:relative}
+        .chart-container canvas{width:100%;height:100%}
+
+        .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+        .form-group{display:flex;flex-direction:column;gap:4px}
+        .form-group.full{grid-column:1/-1}
+        .form-group label{font-family:var(--font-h);font-size:0.8rem;letter-spacing:2px;color:var(--accent);text-transform:uppercase}
+        .form-group input,.form-group select,.form-group textarea{padding:9px 13px;background:var(--bg);border:1px solid var(--border);color:#fff;font-family:var(--font-b);font-size:0.83rem;transition:all 0.3s}
+        .form-group input:focus,.form-group select:focus,.form-group textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(232,196,65,0.06)}
+        .form-group textarea{resize:vertical;min-height:80px}
+        .form-group select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%23909099' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:30px}
+        .form-group .helper{font-size:0.65rem;color:var(--text3);margin-top:2px}
+        .form-group .preview-thumb{width:80px;height:60px;object-fit:cover;border:1px solid var(--border);margin-top:6px;background:var(--bg)}
+
+        .filters-bar{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
+        .search-input{flex:1;min-width:180px;padding:9px 13px;background:var(--bg);border:1px solid var(--border);color:#fff;font-family:var(--font-b);font-size:0.82rem;transition:all 0.3s}
+        .search-input:focus{outline:none;border-color:var(--accent)}
+        .filter-select{padding:9px 28px 9px 13px;background:var(--bg);border:1px solid var(--border);color:#fff;font-family:var(--font-b);font-size:0.8rem;cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%23909099' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center}
+
+        .items-table{width:100%;border-collapse:collapse}
+        .items-table th{text-align:left;padding:10px 12px;font-family:var(--font-h);font-size:0.68rem;letter-spacing:2px;color:var(--text3);border-bottom:1px solid var(--border);text-transform:uppercase;cursor:pointer;user-select:none;transition:color 0.2s;white-space:nowrap}
+        .items-table th:hover{color:var(--accent)}
+        .items-table th .sort-arrow{font-size:0.6rem;margin-left:3px;opacity:0.4}
+        .items-table th.sorted .sort-arrow{opacity:1;color:var(--accent)}
+        .items-table td{padding:10px 12px;border-bottom:1px solid rgba(255,255,255,0.015);font-size:0.8rem;vertical-align:middle}
+        .items-table tbody tr{transition:all 0.2s;animation:rowIn 0.3s ease backwards}
+        @keyframes rowIn{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:translateX(0)}}
+        .items-table tbody tr:hover{background:var(--hover)}
+        .items-table .thumb{width:40px;height:40px;object-fit:cover;background:var(--bg);border:1px solid var(--border);transition:transform 0.3s}
+        .items-table tbody tr:hover .thumb{transform:scale(1.1)}
+        .items-table .actions{display:flex;gap:5px}
+        .items-table .actions button{padding:4px 9px;font-size:0.6rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--text2);transition:all 0.2s;font-family:var(--font-b)}
+        .items-table .actions button:hover{border-color:var(--accent);color:var(--accent);background:rgba(232,196,65,0.04)}
+        .items-table .actions button.danger:hover{border-color:var(--red);color:var(--red);background:var(--red-bg)}
+
+        .empty-state{text-align:center;padding:50px 20px}
+        .empty-state p{color:var(--text3);font-size:0.82rem;letter-spacing:0.5px}
+
+        .toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:var(--card);border:1px solid var(--accent);color:var(--accent);padding:11px 22px;font-family:var(--font-h);letter-spacing:2px;font-size:0.8rem;z-index:9999;opacity:0;transition:all 0.35s;pointer-events:none;box-shadow:0 0 35px rgba(0,0,0,0.6),0 0 15px var(--glow)}
+        .toast.show{opacity:1;transform:translateX(-50%) translateY(-5px)}
+        .toast.error{border-color:var(--red);color:var(--red);box-shadow:0 0 35px rgba(0,0,0,0.6),0 0 15px rgba(239,83,80,0.3)}
+
+        .notification-dot{position:fixed;top:16px;right:16px;z-index:9998;background:var(--red);color:#fff;padding:8px 18px;font-family:var(--font-h);font-size:0.8rem;letter-spacing:2px;opacity:0;transform:translateX(100%);transition:all 0.4s;pointer-events:none;box-shadow:0 4px 20px rgba(239,83,80,0.3);border:1px solid var(--red)}
+        .notification-dot.show{opacity:1;transform:translateX(0)}
+        .notification-dot.hide{opacity:0;transform:translateX(100%)}
+
+        @media(max-width:768px){
+            .sidebar{transform:translateX(-100%)}
+            .sidebar.open{transform:translateX(0)}
+            .main-area{margin-left:0}
+            .menu-toggle{display:block}
+            .form-grid{grid-template-columns:1fr}
+            .stats-row{grid-template-columns:1fr 1fr;gap:8px}
+            .stat-card{padding:12px 14px;gap:10px}
+            .stat-card .stat-icon{width:34px;height:34px}
+            .stat-card .stat-icon svg{width:16px;height:16px}
+            .stat-card .stat-info h3{font-size:1.3rem}
+            .content-area{padding:14px 10px}
+            .items-table{font-size:0.7rem}
+            .items-table th,.items-table td{padding:6px 5px}
+            .top-bar{padding:10px 14px}
+            .chart-container{height:150px}
         }
     </style>
 </head>
@@ -153,21 +162,32 @@
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-logo">NICE<span>ENDURO</span></div>
         <nav class="sidebar-nav">
-            <a href="admin.html" class="active">
+            <a class="active" data-tab="requests">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                Заявки
-                <span class="badge" id="sidebarBadge">0</span>
+                Заявки <span class="badge" id="badgeRequests">0</span>
             </a>
-            <a href="support.html">
+            <a data-tab="support">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-                Техподдержка
+                Поддержка
             </a>
-            <a href="index.html">
+            <a data-tab="products">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+                Товары
+            </a>
+            <a data-tab="categories">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+                Категории
+            </a>
+            <a data-tab="settings">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+                Настройки
+            </a>
+            <a href="index.html" style="margin-top:16px;">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
                 На сайт
             </a>
         </nav>
-        <div class="sidebar-footer">NICE ENDURO © 2024</div>
+        <div class="sidebar-footer">NICE ENDURO 2024</div>
     </aside>
 
     <div class="main-area">
@@ -176,154 +196,389 @@
                 <button class="menu-toggle" onclick="toggleSidebar()">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
                 </button>
-                <h2>Заявки</h2>
+                <h2 id="pageTitle">Заявки</h2>
             </div>
             <div class="top-bar-right">
                 <div class="live-dot"></div>
-                <span class="live-text">Онлайн</span>
+                <span class="live-text" id="liveText">Онлайн</span>
             </div>
         </div>
 
         <div class="content-area">
-            <div class="stats-row">
-                <div class="stat-card total"><div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><div class="stat-info"><h3 id="statTotal">0</h3><p>Всего</p></div></div>
-                <div class="stat-card new"><div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg></div><div class="stat-info"><h3 id="statNew">0</h3><p>Новые</p></div></div>
-                <div class="stat-card process"><div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><div class="stat-info"><h3 id="statProcess">0</h3><p>В обработке</p></div></div>
-                <div class="stat-card done"><div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div><div class="stat-info"><h3 id="statDone">0</h3><p>Обработано</p></div></div>
+            <!-- Заявки -->
+            <div class="tab-content active" id="tab-requests">
+                <div class="stats-row">
+                    <div class="stat-card total"><div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/></svg></div><div class="stat-info"><h3 id="statTotal">0</h3><p>Всего</p></div></div>
+                    <div class="stat-card new"><div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg></div><div class="stat-info"><h3 id="statNew">0</h3><p>Новые</p></div></div>
+                    <div class="stat-card process"><div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><div class="stat-info"><h3 id="statProcess">0</h3><p>В работе</p></div></div>
+                    <div class="stat-card done"><div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div><div class="stat-info"><h3 id="statDone">0</h3><p>Готово</p></div></div>
+                </div>
+                <div class="chart-container"><canvas id="requestsChart"></canvas></div>
+                <div class="card">
+                    <div class="card-header"><h3>Список заявок</h3><button class="btn btn-outline btn-sm" onclick="loadRequests()">Обновить</button></div>
+                    <div class="filters-bar">
+                        <input type="text" class="search-input" placeholder="Поиск по имени или телефону..." oninput="renderRequestsTable()" id="reqSearch">
+                        <select class="filter-select" onchange="renderRequestsTable()" id="reqFilter"><option value="all">Все статусы</option><option value="new">Новые</option><option value="process">В работе</option><option value="done">Готово</option><option value="cancel">Отмена</option></select>
+                    </div>
+                    <table class="items-table"><thead><tr><th data-sort="id">N <span class="sort-arrow">&#9650;</span></th><th data-sort="created_at">Дата <span class="sort-arrow">&#9650;</span></th><th data-sort="name">Имя <span class="sort-arrow">&#9650;</span></th><th>Телефон</th><th>Тип</th><th>Статус</th><th></th></tr></thead><tbody id="requestsBody"></tbody></table>
+                    <div class="empty-state" id="requestsEmpty" style="display:none"><p>Заявок пока нет</p></div>
+                </div>
             </div>
 
-            <div class="filters-panel">
-                <div class="search-wrapper">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                    <input type="text" class="search-input" placeholder="Поиск по имени или телефону..." oninput="renderAll()" id="searchInput">
+            <!-- Поддержка -->
+            <div class="tab-content" id="tab-support">
+                <div class="card" style="padding:0;overflow:hidden;">
+                    <div style="display:grid;grid-template-columns:260px 1fr;height:calc(100vh - 150px);min-height:420px;">
+                        <div style="border-right:1px solid var(--border);overflow-y:auto;background:var(--card);" id="ticketsList"><div class="empty-state"><p>Тикетов нет</p></div></div>
+                        <div style="display:flex;flex-direction:column;">
+                            <div style="padding:10px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
+                                <h3 id="supportTitle" style="font-family:var(--font-h);font-size:1rem;letter-spacing:2px;">Выберите тикет</h3>
+                                <button class="btn btn-outline btn-xs" id="closeTicketBtn" style="display:none" onclick="closeCurrentTicket()">Закрыть</button>
+                            </div>
+                            <div style="flex:1;overflow-y:auto;padding:12px;" id="supportMessages"><div class="empty-state"><p>Выберите тикет слева</p></div></div>
+                            <div style="padding:8px;border-top:1px solid var(--border);display:flex;gap:7px;" id="supportInput">
+                                <input type="text" placeholder="Ответить..." id="supportMessageInput" onkeypress="if(event.key==='Enter')sendSupportMessage()" style="flex:1;padding:8px 11px;background:var(--bg);border:1px solid var(--border);color:#fff;font-family:var(--font-b);font-size:0.8rem;">
+                                <button class="btn btn-primary btn-sm" onclick="sendSupportMessage()">Отпр</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <select class="filter-select" onchange="renderAll()" id="filterStatus">
-                    <option value="all">Все статусы</option>
-                    <option value="new">Новые</option>
-                    <option value="process">В обработке</option>
-                    <option value="done">Обработано</option>
-                    <option value="cancel">Отменено</option>
-                </select>
-                <button class="btn-icon" onclick="loadRequests()">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
-                    Обновить
-                </button>
             </div>
 
-            <div class="table-container">
-                <div class="table-container-header"><h3>Список заявок</h3><span class="count" id="tableCount">0 записей</span></div>
-                <table class="requests-table" id="requestsTable">
-                    <thead><tr><th>№</th><th>Дата / Время</th><th>Имя</th><th>Телефон</th><th>Тип</th><th>Статус</th><th>Действия</th></tr></thead>
-                    <tbody id="tableBody"></tbody>
-                </table>
-                <div class="empty-state" id="emptyState" style="display:none;">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                    <h3>Заявок нет</h3><p>Новые заявки с сайта будут появляться здесь</p>
+            <!-- Товары -->
+            <div class="tab-content" id="tab-products">
+                <div class="card">
+                    <div class="card-header"><h3 id="productFormTitle">Добавить товар</h3></div>
+                    <div class="form-grid">
+                        <div class="form-group"><label>Название</label><input type="text" id="prodName" placeholder="Kayo 250"></div>
+                        <div class="form-group"><label>Категория (slug)</label><input type="text" id="prodCategory" placeholder="moto" list="catList"><datalist id="catList"></datalist></div>
+                        <div class="form-group"><label>Цена</label><input type="text" id="prodPrice" placeholder="от 189 000"></div>
+                        <div class="form-group"><label>Наличие</label><select id="prodAvailable"><option value="true">В наличии</option><option value="false">Под заказ</option></select></div>
+                        <div class="form-group"><label>Характеристики</label><input type="text" id="prodSpecs" placeholder="250 куб.см, 110 кг, 5 передач"></div>
+                        <div class="form-group"><label>URL картинки</label><input type="text" id="prodImage" placeholder="kayo250.jpg" oninput="document.getElementById('prodPreview').src=this.value||'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2280%22 height=%2260%22%3E%3Crect fill=%22%230E0E14%22 width=%2280%22 height=%2260%22/%3E%3C/svg%3E'"><img id="prodPreview" class="preview-thumb" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='60'%3E%3Crect fill='%230E0E14' width='80' height='60'/%3E%3C/svg%3E"></div>
+                        <div class="form-group full"><label>Описание</label><textarea id="prodDesc" placeholder="Полное описание..."></textarea></div>
+                        <div class="form-group full" style="display:flex;gap:10px;">
+                            <input type="hidden" id="prodEditId">
+                            <button class="btn btn-primary" onclick="saveProduct()">Сохранить</button>
+                            <button class="btn btn-outline" onclick="resetProductForm()">Отмена</button>
+                        </div>
+                    </div>
                 </div>
-                <div id="mobileCards"></div>
+                <div class="card">
+                    <div class="card-header"><h3>Список товаров</h3><span style="color:var(--text3);font-size:0.7rem" id="productsCount">0 товаров</span></div>
+                    <div class="filters-bar">
+                        <input type="text" class="search-input" placeholder="Поиск по названию..." oninput="renderProductsTable()" id="prodSearch">
+                        <select class="filter-select" onchange="renderProductsTable()" id="prodCatFilter"><option value="all">Все категории</option></select>
+                    </div>
+                    <table class="items-table"><thead><tr><th data-sort="name">Название <span class="sort-arrow">&#9650;</span></th><th data-sort="category">Категория <span class="sort-arrow">&#9650;</span></th><th data-sort="price">Цена <span class="sort-arrow">&#9650;</span></th><th></th></tr></thead><tbody id="productsBody"></tbody></table>
+                    <div class="empty-state" id="productsEmpty" style="display:none"><p>Товаров пока нет</p></div>
+                </div>
+            </div>
+
+            <!-- Категории -->
+            <div class="tab-content" id="tab-categories">
+                <div class="card">
+                    <div class="card-header"><h3 id="categoryFormTitle">Добавить категорию</h3></div>
+                    <div class="form-grid">
+                        <div class="form-group"><label>Ключ (slug)</label><input type="text" id="catSlug" placeholder="moto"><span class="helper">Латинские буквы, без пробелов</span></div>
+                        <div class="form-group"><label>Название</label><input type="text" id="catTitle" placeholder="Мототехника"></div>
+                        <div class="form-group full"><label>Описание</label><textarea id="catDesc" placeholder="Краткое описание..."></textarea></div>
+                        <div class="form-group"><label>URL картинки</label><input type="text" id="catImage" placeholder="moto.png" oninput="document.getElementById('catPreview').src=this.value||'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2280%22 height=%2260%22%3E%3Crect fill=%22%230E0E14%22 width=%2280%22 height=%2260%22/%3E%3C/svg%3E'"><img id="catPreview" class="preview-thumb" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='60'%3E%3Crect fill='%230E0E14' width='80' height='60'/%3E%3C/svg%3E"></div>
+                        <div class="form-group full" style="display:flex;gap:10px;">
+                            <input type="hidden" id="catEditKey">
+                            <button class="btn btn-primary" onclick="saveCategory()">Сохранить</button>
+                            <button class="btn btn-outline" onclick="resetCategoryForm()">Отмена</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header"><h3>Список категорий</h3></div>
+                    <table class="items-table"><thead><tr><th>Ключ</th><th>Название</th><th>Описание</th><th></th></tr></thead><tbody id="categoriesBody"></tbody></table>
+                    <div class="empty-state" id="categoriesEmpty" style="display:none"><p>Категорий пока нет</p></div>
+                </div>
+            </div>
+
+            <!-- Настройки -->
+            <div class="tab-content" id="tab-settings">
+                <div class="card">
+                    <div class="card-header"><h3>Основные настройки</h3></div>
+                    <div class="form-grid">
+                        <div class="form-group"><label>Телефон</label><input type="text" id="setPhone" placeholder="+79954808808"></div>
+                        <div class="form-group"><label>Адрес</label><input type="text" id="setAddress" placeholder="г. Кунгур, ул. Ст.Разина 48"></div>
+                        <div class="form-group"><label>Пн-Пт</label><input type="text" id="setHours1" placeholder="10:00-19:00"></div>
+                        <div class="form-group"><label>Сб-Вс</label><input type="text" id="setHours2" placeholder="10:00-17:00"></div>
+                        <div class="form-group"><label>Email</label><input type="text" id="setEmail" placeholder="info@nice-enduro.ru"></div>
+                        <div class="form-group"><label>Telegram</label><input type="text" id="setTelegram" placeholder="@nice_enduro"></div>
+                        <div class="form-group"><label>WhatsApp</label><input type="text" id="setWhatsapp" placeholder="+79954808808"></div>
+                        <div class="form-group"><label>Яндекс.Карты ID</label><input type="text" id="setYandexMap" placeholder="abc123def456"></div>
+                        <div class="form-group full"><button class="btn btn-primary" onclick="saveSettings()">Сохранить настройки</button></div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
-    <div class="modal-overlay" id="deleteModal">
-        <div class="modal"><h3>Удалить заявку?</h3><p>Это действие нельзя отменить.</p>
-            <div class="btn-row"><button class="btn-icon" style="background:transparent;border:1px solid var(--border-color);color:var(--text-secondary);" onclick="closeDeleteModal()">Отмена</button><button class="btn-icon" style="background:var(--red);border-color:var(--red);" id="confirmDeleteBtn">Удалить</button></div>
-        </div>
-    </div>
+    <div class="toast" id="toast"></div>
+    <div class="notification-dot" id="notifDot"></div>
 
     <script>
         const SUPABASE_URL = 'https://zrooftnesjmcaqjwojwi.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpyb29mdG5lc2ptY2FxandvandpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk2OTM5OTcsImV4cCI6MjA5NTI2OTk5N30.FNncL110petZQIy5COkYkArQtFq0yxszqI93lMri9YY';
         const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-        let deleteTargetId = null;
-        let allRequests = [];
+        let currentTicketId = null, supportChannel = null, allRequests = [], allProducts = [], allCategories = [];
+        let reqSortCol = 'created_at', reqSortDir = 'desc';
+        let prodSortCol = 'name', prodSortDir = 'asc';
 
+        const tabs = ['requests','support','products','categories','settings'];
+        const titles = {requests:'Заявки',support:'Поддержка',products:'Товары',categories:'Категории',settings:'Настройки'};
+
+        document.querySelectorAll('.sidebar-nav a[data-tab]').forEach(a => {
+            a.addEventListener('click', () => {
+                document.querySelectorAll('.sidebar-nav a').forEach(x => x.classList.remove('active'));
+                a.classList.add('active');
+                const tab = a.dataset.tab;
+                document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+                document.getElementById('tab-'+tab).classList.add('active');
+                document.getElementById('pageTitle').textContent = titles[tab];
+                if (tab === 'requests') { loadRequests(); drawChart(); }
+                if (tab === 'support') loadTickets();
+                if (tab === 'products') loadProducts();
+                if (tab === 'categories') loadCategories();
+                if (tab === 'settings') loadSettings();
+                if (window.innerWidth <= 768) document.getElementById('sidebar').classList.remove('open');
+            });
+        });
+
+        // Горячие клавиши
+        document.addEventListener('keydown', e => {
+            if (e.ctrlKey || e.metaKey) {
+                if (e.key === '1') { e.preventDefault(); document.querySelector('[data-tab="requests"]').click(); }
+                if (e.key === '2') { e.preventDefault(); document.querySelector('[data-tab="support"]').click(); }
+                if (e.key === '3') { e.preventDefault(); document.querySelector('[data-tab="products"]').click(); }
+                if (e.key === '4') { e.preventDefault(); document.querySelector('[data-tab="categories"]').click(); }
+                if (e.key === '5') { e.preventDefault(); document.querySelector('[data-tab="settings"]').click(); }
+            }
+        });
+
+        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
+        document.addEventListener('click', e => { const s = document.getElementById('sidebar'); if (s.classList.contains('open') && !s.contains(e.target) && !e.target.closest('.menu-toggle')) s.classList.remove('open'); });
+        function showToast(m, err = false) { const t = document.getElementById('toast'); t.textContent = m; t.className = 'toast' + (err ? ' error' : '') + ' show'; setTimeout(() => t.classList.remove('show'), 2500); }
+        function showNotification(m) { const n = document.getElementById('notifDot'); n.textContent = m; n.classList.add('show'); setTimeout(() => n.classList.add('hide'), 3000); setTimeout(() => { n.classList.remove('show','hide'); }, 3400); }
+
+        // ============ ЗАЯВКИ ============
         async function loadRequests() {
             const { data } = await sb.from('requests').select('*').order('created_at', { ascending: false });
             allRequests = data || [];
-            renderAll();
-            updateStats();
-        }
-
-        async function updateStatus(id, status) {
-            await sb.from('requests').update({ status }).eq('id', id);
-            loadRequests();
-        }
-
-        function confirmDelete(id) { deleteTargetId = id; document.getElementById('deleteModal').classList.add('active'); }
-        function closeDeleteModal() { deleteTargetId = null; document.getElementById('deleteModal').classList.remove('active'); }
-        async function executeDelete() {
-            if (!deleteTargetId) return;
-            await sb.from('requests').delete().eq('id', deleteTargetId);
-            deleteTargetId = null; document.getElementById('deleteModal').classList.remove('active'); loadRequests();
-        }
-
-        function getStatusLabel(s) { return { new:'Новая', process:'В обработке', done:'Обработано', cancel:'Отменено' }[s] || s; }
-        function getTypeLabel(t) { return { consultation:'Консультация', call:'Звонок', testdrive:'Тест-драйв', service:'Сервис', other:'Другое' }[t] || t; }
-        function formatDate(iso) { const d = new Date(iso); return d.toLocaleDateString('ru-RU') + ' ' + d.toLocaleTimeString('ru-RU', { hour:'2-digit', minute:'2-digit' }); }
-
-        function getFilteredRequests() {
-            const search = (document.getElementById('searchInput').value || '').toLowerCase();
-            const filter = document.getElementById('filterStatus').value;
-            let requests = [...allRequests];
-            if (search) requests = requests.filter(r => r.name.toLowerCase().includes(search) || r.phone.includes(search));
-            if (filter !== 'all') requests = requests.filter(r => r.status === filter);
-            return requests;
-        }
-
-        function updateStats() {
             document.getElementById('statTotal').textContent = allRequests.length;
             document.getElementById('statNew').textContent = allRequests.filter(r => r.status === 'new').length;
             document.getElementById('statProcess').textContent = allRequests.filter(r => r.status === 'process').length;
             document.getElementById('statDone').textContent = allRequests.filter(r => r.status === 'done').length;
-            document.getElementById('sidebarBadge').textContent = allRequests.filter(r => r.status === 'new').length;
+            document.getElementById('badgeRequests').textContent = allRequests.filter(r => r.status === 'new').length;
+            document.getElementById('liveText').textContent = allRequests.length > 0 ? 'Активен' : 'Онлайн';
+            renderRequestsTable();
+            drawChart();
+        }
+        function getFilteredRequests() {
+            const search = (document.getElementById('reqSearch')?.value || '').toLowerCase();
+            const filter = document.getElementById('reqFilter')?.value || 'all';
+            let list = [...allRequests];
+            if (search) list = list.filter(r => (r.name||'').toLowerCase().includes(search) || (r.phone||'').includes(search));
+            if (filter !== 'all') list = list.filter(r => r.status === filter);
+            list.sort((a, b) => {
+                const va = a[reqSortCol] || '', vb = b[reqSortCol] || '';
+                if (reqSortCol === 'created_at') return reqSortDir === 'desc' ? new Date(vb) - new Date(va) : new Date(va) - new Date(vb);
+                return reqSortDir === 'desc' ? String(vb).localeCompare(String(va)) : String(va).localeCompare(String(vb));
+            });
+            return list;
+        }
+        function renderRequestsTable() {
+            const list = getFilteredRequests();
+            const tbody = document.getElementById('requestsBody'), empty = document.getElementById('requestsEmpty');
+            if (list.length === 0) { tbody.innerHTML = ''; empty.style.display = 'block'; return; }
+            empty.style.display = 'none';
+            tbody.innerHTML = list.map((r, i) => `
+                <tr style="animation-delay:${i*0.02}s"><td>#${r.id.toString().slice(-4)}</td><td>${new Date(r.created_at).toLocaleDateString('ru-RU')}</td><td><strong>${r.name}</strong></td>
+                <td><a href="tel:${r.phone}" style="color:var(--accent);text-decoration:none">${r.phone}</a></td><td>${r.type || '---'}</td>
+                <td><select onchange="updateRequestStatus(${r.id},this.value)" style="padding:4px 7px;background:var(--bg);border:1px solid var(--border);color:#fff;font-size:0.65rem;cursor:pointer">
+                    <option value="new" ${r.status==='new'?'selected':''}>Новая</option><option value="process" ${r.status==='process'?'selected':''}>В работе</option>
+                    <option value="done" ${r.status==='done'?'selected':''}>Готово</option><option value="cancel" ${r.status==='cancel'?'selected':''}>Отмена</option></select></td>
+                <td><div class="actions"><a href="tel:${r.phone}" class="btn btn-primary btn-xs">Звонок</a><button class="danger" onclick="deleteRequest(${r.id})">Удл</button></div></td></tr>`).join('');
+        }
+        async function updateRequestStatus(id, s) { await sb.from('requests').update({status:s}).eq('id',id); loadRequests(); showToast('Статус обновлен'); }
+        async function deleteRequest(id) { if (!confirm('Удалить заявку?')) return; await sb.from('requests').delete().eq('id',id); loadRequests(); showToast('Заявка удалена'); }
+        document.getElementById('requestsBody').parentElement.querySelector('thead').addEventListener('click', e => {
+            const th = e.target.closest('th[data-sort]'); if (!th) return;
+            const col = th.dataset.sort;
+            if (reqSortCol === col) reqSortDir = reqSortDir === 'desc' ? 'asc' : 'desc';
+            else { reqSortCol = col; reqSortDir = 'desc'; }
+            document.querySelectorAll('#tab-requests th').forEach(t => t.classList.remove('sorted'));
+            th.classList.add('sorted');
+            renderRequestsTable();
+        });
+
+        // График
+        function drawChart() {
+            const canvas = document.getElementById('requestsChart'); if (!canvas) return;
+            const ctx = canvas.getContext('2d'); const w = canvas.parentElement.offsetWidth; const h = canvas.parentElement.offsetHeight;
+            canvas.width = w; canvas.height = h;
+            const days = []; const counts = [];
+            for (let i = 6; i >= 0; i--) {
+                const d = new Date(); d.setDate(d.getDate() - i);
+                const key = d.toLocaleDateString('ru-RU');
+                days.push(key.slice(0,5));
+                counts.push(allRequests.filter(r => new Date(r.created_at).toLocaleDateString('ru-RU') === key).length);
+            }
+            const max = Math.max(...counts, 1);
+            const pad = 40;
+            ctx.clearRect(0,0,w,h);
+            ctx.beginPath(); ctx.strokeStyle = 'rgba(232,196,65,0.15)'; ctx.lineWidth = 1;
+            for (let i = 0; i <= 4; i++) { const y = pad + (h-pad*2)*(i/4); ctx.moveTo(pad,y); ctx.lineTo(w-pad,y); }
+            ctx.stroke();
+            ctx.beginPath(); ctx.strokeStyle = 'var(--accent)'; ctx.lineWidth = 2; ctx.lineJoin = 'round';
+            counts.forEach((c,i) => { const x = pad + (w-pad*2)*(i/6); const y = pad + (h-pad*2)*(1-c/max); if (i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y); });
+            ctx.stroke();
+            counts.forEach((c,i) => { const x = pad + (w-pad*2)*(i/6); const y = pad + (h-pad*2)*(1-c/max); ctx.beginPath(); ctx.arc(x,y,3,0,Math.PI*2); ctx.fillStyle = 'var(--accent)'; ctx.fill(); });
+            ctx.fillStyle = 'var(--text3)'; ctx.font = '10px Inter'; ctx.textAlign = 'center';
+            days.forEach((d,i) => { const x = pad + (w-pad*2)*(i/6); ctx.fillText(d,x,h-8); });
+        }
+        window.addEventListener('resize', drawChart);
+
+        // ============ ПОДДЕРЖКА ============
+        async function loadTickets() {
+            const { data } = await sb.from('tickets').select('*').order('created_at', { ascending: false });
+            const list = data || [];
+            const c = document.getElementById('ticketsList');
+            if (list.length === 0) { c.innerHTML = '<div class="empty-state"><p>Тикетов нет</p></div>'; return; }
+            c.innerHTML = list.map(t => `
+                <div onclick="openTicket(${t.id})" style="padding:11px 15px;border-bottom:1px solid rgba(255,255,255,0.015);cursor:pointer;transition:all 0.2s;${t.id===currentTicketId?'background:rgba(232,196,65,0.04);border-left:2px solid var(--accent);':''}">
+                    <div style="font-weight:600;font-size:0.82rem;margin-bottom:2px;">${t.name} <span style="font-size:0.58rem;color:${t.status==='open'?'var(--green)':'var(--text3)'}">${t.status==='open'?'открыт':'закрыт'}</span></div>
+                    <div style="font-size:0.65rem;color:var(--text3);">${new Date(t.created_at).toLocaleString('ru-RU')}</div>
+                </div>`).join('');
+        }
+        async function openTicket(id) {
+            currentTicketId = id;
+            const { data: ticket } = await sb.from('tickets').select('*').eq('id', id).single();
+            document.getElementById('supportTitle').textContent = ticket ? ticket.name : 'Тикет';
+            document.getElementById('supportInput').style.display = ticket?.status==='open'?'flex':'none';
+            document.getElementById('closeTicketBtn').style.display = ticket?.status==='open'?'inline-flex':'none';
+            if (supportChannel) sb.removeChannel(supportChannel);
+            supportChannel = sb.channel('support-'+id).on('postgres_changes',{event:'INSERT',schema:'public',table:'messages',filter:`ticket_id=eq.${id}`},()=>loadSupportMessages()).subscribe();
+            loadSupportMessages(); loadTickets();
+        }
+        async function loadSupportMessages() {
+            if (!currentTicketId) return;
+            const { data } = await sb.from('messages').select('*').eq('ticket_id',currentTicketId).order('created_at',{ascending:true});
+            const c = document.getElementById('supportMessages');
+            c.innerHTML = (data||[]).map(m => `
+                <div style="margin-bottom:7px;"><div style="display:inline-block;padding:7px 11px;font-size:0.78rem;max-width:85%;line-height:1.4;background:${m.sender==='client'?'rgba(232,196,65,0.07)':'#14141C'};border:1px solid ${m.sender==='client'?'rgba(232,196,65,0.12)':'var(--border)'};color:#fff;">${m.text}</div>
+                <div style="font-size:0.58rem;color:var(--text3);margin-top:2px;">${new Date(m.created_at).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})}</div></div>`).join('') || '<div class="empty-state"><p>Нет сообщений</p></div>';
+            c.scrollTop = c.scrollHeight;
+        }
+        async function sendSupportMessage() {
+            if (!currentTicketId) return;
+            const input = document.getElementById('supportMessageInput'), text = input.value.trim();
+            if (!text) return;
+            await sb.from('messages').insert({id:Date.now(),ticket_id:currentTicketId,sender:'support',text});
+            input.value = ''; loadSupportMessages();
+        }
+        async function closeCurrentTicket() {
+            if (!currentTicketId) return;
+            await sb.from('tickets').update({status:'closed'}).eq('id',currentTicketId);
+            document.getElementById('supportInput').style.display='none';
+            document.getElementById('closeTicketBtn').style.display='none';
+            showToast('Тикет закрыт'); loadTickets();
         }
 
-        function renderTable() {
-            const requests = getFilteredRequests();
-            const tbody = document.getElementById('tableBody');
-            const empty = document.getElementById('emptyState');
-            const table = document.getElementById('requestsTable');
-            document.getElementById('tableCount').textContent = requests.length + ' записей';
-            if (requests.length === 0) { table.style.display = 'none'; empty.style.display = 'block'; }
-            else { table.style.display = ''; empty.style.display = 'none'; }
-            tbody.innerHTML = requests.map((r, i) => `
-                <tr>
-                    <td>#${i + 1}</td><td>${formatDate(r.created_at)}</td><td><strong>${r.name}</strong></td>
-                    <td><a href="tel:${r.phone}" class="phone-link">${r.phone}</a></td><td>${getTypeLabel(r.type)}</td>
-                    <td><span class="status-badge ${r.status}">${getStatusLabel(r.status)}</span></td>
-                    <td class="actions-cell">
-                        <button class="action-btn call" onclick="window.location.href='tel:${r.phone}'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6.62 10.79a15.05 15.05 0 0 0 6.59 6.59l2.2-2.2a1 1 0 0 1 1.02-.24 11.5 11.5 0 0 0 3.6.58 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1 11.5 11.5 0 0 0 .58 3.6 1 1 0 0 1-.24 1.02l-2.22 2.17z"/></svg>Звонок</button>
-                        <select class="status-select" onchange="updateStatus(${r.id}, this.value)"><option value="">Статус</option><option value="new" ${r.status==='new'?'selected':''}>Новая</option><option value="process" ${r.status==='process'?'selected':''}>В обработке</option><option value="done" ${r.status==='done'?'selected':''}>Обработано</option><option value="cancel" ${r.status==='cancel'?'selected':''}>Отменено</option></select>
-                        <button class="action-btn delete" onclick="confirmDelete(${r.id})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>Удалить</button>
-                    </td>
-                </tr>
-            `).join('');
+        // ============ ТОВАРЫ ============
+        async function loadProducts() {
+            const [pr,cr] = await Promise.all([sb.from('products').select('*').order('created_at',{ascending:false}),sb.from('categories').select('*')]);
+            allProducts = pr.data || []; allCategories = cr.data || [];
+            document.getElementById('productsCount').textContent = allProducts.length + ' товаров';
+            document.getElementById('catList').innerHTML = allCategories.map(c => `<option value="${c.slug}">${c.title}</option>`).join('');
+            const catFilter = document.getElementById('prodCatFilter');
+            catFilter.innerHTML = '<option value="all">Все категории</option>' + allCategories.map(c => `<option value="${c.slug}">${c.title}</option>`).join('');
+            renderProductsTable();
         }
-
-        function renderMobileCards() {
-            const requests = getFilteredRequests();
-            document.getElementById('mobileCards').innerHTML = requests.map((r, i) => `
-                <div class="mobile-card">
-                    <div class="mc-header"><div><div class="mc-name">#${i + 1} ${r.name}</div><div class="mc-phone"><a href="tel:${r.phone}" style="color:inherit;text-decoration:none;">${r.phone}</a></div></div><span class="status-badge ${r.status}">${getStatusLabel(r.status)}</span></div>
-                    <div class="mc-meta"><span>${formatDate(r.created_at)}</span><span>·</span><span>${getTypeLabel(r.type)}</span></div>
-                    <div class="mc-actions">
-                        <button class="action-btn call" onclick="window.location.href='tel:${r.phone}'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6.62 10.79a15.05 15.05 0 0 0 6.59 6.59l2.2-2.2a1 1 0 0 1 1.02-.24 11.5 11.5 0 0 0 3.6.58 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1 11.5 11.5 0 0 0 .58 3.6 1 1 0 0 1-.24 1.02l-2.22 2.17z"/></svg>Звонок</button>
-                        <select class="status-select" onchange="updateStatus(${r.id}, this.value)"><option value="">Статус</option><option value="new" ${r.status==='new'?'selected':''}>Новая</option><option value="process" ${r.status==='process'?'selected':''}>В обработке</option><option value="done" ${r.status==='done'?'selected':''}>Обработано</option><option value="cancel" ${r.status==='cancel'?'selected':''}>Отменено</option></select>
-                        <button class="action-btn delete" onclick="confirmDelete(${r.id})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>Удалить</button>
-                    </div>
-                </div>
-            `).join('');
+        function getFilteredProducts() {
+            const search = (document.getElementById('prodSearch')?.value || '').toLowerCase();
+            const cat = document.getElementById('prodCatFilter')?.value || 'all';
+            let list = [...allProducts];
+            if (search) list = list.filter(p => (p.name||'').toLowerCase().includes(search));
+            if (cat !== 'all') list = list.filter(p => p.category === cat);
+            list.sort((a,b) => { const va = a[prodSortCol]||'', vb = b[prodSortCol]||''; return prodSortDir==='desc'?String(vb).localeCompare(String(va)):String(va).localeCompare(String(vb)); });
+            return list;
         }
+        function renderProductsTable() {
+            const list = getFilteredProducts();
+            const catMap = {}; allCategories.forEach(c => catMap[c.slug] = c.title);
+            document.getElementById('productsBody').innerHTML = list.length===0?'':list.map(p => `
+                <tr><td><strong>${p.name}</strong></td><td>${catMap[p.category]||p.category||'---'}</td><td>${p.price||'---'}</td>
+                <td><div class="actions"><button onclick="editProduct('${p.id}')">Ред</button><button class="danger" onclick="deleteProduct('${p.id}')">Удл</button></div></td></tr>`).join('');
+            document.getElementById('productsEmpty').style.display = list.length===0?'block':'none';
+        }
+        async function saveProduct() {
+            const id = document.getElementById('prodEditId').value;
+            const data = {name:document.getElementById('prodName').value.trim(),category:document.getElementById('prodCategory').value.trim().toLowerCase(),price:document.getElementById('prodPrice').value.trim(),available:document.getElementById('prodAvailable').value==='true',specs:document.getElementById('prodSpecs').value.trim(),image:document.getElementById('prodImage').value.trim(),"desc":document.getElementById('prodDesc').value.trim()};
+            if (!data.name) { showToast('Введите название',true); return; }
+            if (id) { await sb.from('products').update(data).eq('id',id); showToast('Товар обновлен'); }
+            else { await sb.from('products').insert({...data,id:Date.now()}); showToast('Товар добавлен'); }
+            resetProductForm(); loadProducts();
+        }
+        async function editProduct(id) { const {data} = await sb.from('products').select('*').eq('id',id).single(); if(!data)return; document.getElementById('prodEditId').value=data.id; document.getElementById('prodName').value=data.name||''; document.getElementById('prodCategory').value=data.category||''; document.getElementById('prodPrice').value=data.price||''; document.getElementById('prodAvailable').value=data.available?'true':'false'; document.getElementById('prodSpecs').value=data.specs||''; document.getElementById('prodImage').value=data.image||''; document.getElementById('prodDesc').value=data["desc"]||''; document.getElementById('prodPreview').src=data.image||''; document.getElementById('productFormTitle').textContent='Редактировать товар'; document.getElementById('tab-products').scrollIntoView({behavior:'smooth'}); }
+        async function deleteProduct(id) { if(!confirm('Удалить?'))return; await sb.from('products').delete().eq('id',id); loadProducts(); showToast('Товар удален'); }
+        function resetProductForm() { document.getElementById('prodEditId').value=''; ['prodName','prodPrice','prodCategory','prodSpecs','prodImage','prodDesc'].forEach(x=>document.getElementById(x).value=''); document.getElementById('prodAvailable').value='true'; document.getElementById('prodPreview').src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2280%22 height=%2260%22%3E%3Crect fill=%22%230E0E14%22 width=%2280%22 height=%2260%22/%3E%3C/svg%3E'; document.getElementById('productFormTitle').textContent='Добавить товар'; }
+        document.querySelector('#tab-products .items-table thead')?.addEventListener('click', e => {
+            const th = e.target.closest('th[data-sort]'); if (!th) return;
+            const col = th.dataset.sort;
+            if (prodSortCol === col) prodSortDir = prodSortDir==='desc'?'asc':'desc';
+            else { prodSortCol = col; prodSortDir = 'asc'; }
+            document.querySelectorAll('#tab-products th').forEach(t => t.classList.remove('sorted'));
+            th.classList.add('sorted');
+            renderProductsTable();
+        });
 
-        function renderAll() { renderTable(); renderMobileCards(); }
-        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
-        document.addEventListener('click', function(e) { const s = document.getElementById('sidebar'); if (s.classList.contains('open') && !s.contains(e.target) && !e.target.closest('.menu-toggle')) s.classList.remove('open'); });
-        document.getElementById('confirmDeleteBtn').addEventListener('click', executeDelete);
-        document.getElementById('deleteModal').addEventListener('click', function(e) { if (e.target === this) closeDeleteModal(); });
+        // ============ КАТЕГОРИИ ============
+        async function loadCategories() {
+            const {data} = await sb.from('categories').select('*').order('created_at',{ascending:true});
+            const list = data||[];
+            document.getElementById('categoriesBody').innerHTML = list.length===0?'':list.map(c => `
+                <tr><td><code>${c.slug}</code></td><td><strong>${c.title}</strong></td><td>${c["desc"]||'---'}</td>
+                <td><div class="actions"><button onclick="editCategory('${c.slug}')">Ред</button><button class="danger" onclick="deleteCategory('${c.slug}')">Удл</button></div></td></tr>`).join('');
+            document.getElementById('categoriesEmpty').style.display = list.length===0?'block':'none';
+        }
+        async function saveCategory() {
+            const key = document.getElementById('catEditKey').value;
+            const slug = document.getElementById('catSlug').value.trim().toLowerCase().replace(/[^a-z0-9]/g,'');
+            const data = {slug,title:document.getElementById('catTitle').value.trim(),"desc":document.getElementById('catDesc').value.trim(),image:document.getElementById('catImage').value.trim()};
+            if (!slug||!data.title) { showToast('Заполните ключ и название',true); return; }
+            if (key) { await sb.from('categories').update(data).eq('slug',key); showToast('Категория обновлена'); }
+            else { await sb.from('categories').insert({...data,id:Date.now()}); showToast('Категория добавлена'); }
+            resetCategoryForm(); loadCategories();
+        }
+        async function editCategory(slug) { const {data} = await sb.from('categories').select('*').eq('slug',slug).single(); if(!data)return; document.getElementById('catEditKey').value=data.slug; document.getElementById('catSlug').value=data.slug; document.getElementById('catTitle').value=data.title||''; document.getElementById('catDesc').value=data["desc"]||''; document.getElementById('catImage').value=data.image||''; document.getElementById('catPreview').src=data.image||''; document.getElementById('categoryFormTitle').textContent='Редактировать категорию'; }
+        async function deleteCategory(slug) { if(!confirm('Удалить?'))return; await sb.from('categories').delete().eq('slug',slug); loadCategories(); showToast('Категория удалена'); }
+        function resetCategoryForm() { document.getElementById('catEditKey').value=''; ['catSlug','catTitle','catDesc','catImage'].forEach(x=>document.getElementById(x).value=''); document.getElementById('catPreview').src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2280%22 height=%2260%22%3E%3Crect fill=%22%230E0E14%22 width=%2280%22 height=%2260%22/%3E%3C/svg%3E'; document.getElementById('categoryFormTitle').textContent='Добавить категорию'; }
 
+        // ============ НАСТРОЙКИ ============
+        async function loadSettings() { const {data} = await sb.from('settings').select('*').single(); if(!data)return; document.getElementById('setPhone').value=data.phone||''; document.getElementById('setAddress').value=data.address||''; document.getElementById('setHours1').value=data.hours_weekdays||''; document.getElementById('setHours2').value=data.hours_weekend||''; document.getElementById('setEmail').value=data.email||''; document.getElementById('setTelegram').value=data.telegram||''; document.getElementById('setWhatsapp').value=data.whatsapp||''; document.getElementById('setYandexMap').value=data.yandex_map_id||''; }
+        async function saveSettings() { const data = {id:1,phone:document.getElementById('setPhone').value.trim(),address:document.getElementById('setAddress').value.trim(),hours_weekdays:document.getElementById('setHours1').value.trim(),hours_weekend:document.getElementById('setHours2').value.trim(),email:document.getElementById('setEmail').value.trim(),telegram:document.getElementById('setTelegram').value.trim(),whatsapp:document.getElementById('setWhatsapp').value.trim(),yandex_map_id:document.getElementById('setYandexMap').value.trim()}; await sb.from('settings').upsert(data,{onConflict:'id'}); showToast('Настройки сохранены'); }
+
+        // ============ ПУЛЛИНГ НОВЫХ ЗАЯВОК ============
+        let prevNewCount = 0;
+        async function pollNewRequests() {
+            const { data } = await sb.from('requests').select('count', { count: 'exact' }).eq('status', 'new');
+            const count = data?.length || 0;
+            if (count > prevNewCount && prevNewCount > 0) {
+                showNotification(`+${count - prevNewCount} новых заявок`);
+                if (document.getElementById('tab-requests').classList.contains('active')) loadRequests();
+            }
+            prevNewCount = count;
+        }
+        setInterval(pollNewRequests, 15000);
+
+        // ============ ЗАПУСК ============
         loadRequests();
-        setInterval(loadRequests, 30000);
+        pollNewRequests();
     </script>
 </body>
 </html>
